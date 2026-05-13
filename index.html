@@ -18,17 +18,24 @@
             </button>
         </header>
 
-        <!-- Category Navigation (동적 렌더링) -->
-        <nav class="category-nav" id="categoryNav">
-            <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">전체</button>
-            <button class="staff-call-btn" id="staffCallBtn">
-                <i data-lucide="bell"></i> 호출
-            </button>
-        </nav>
+        <!-- Content Area: sidebar + menu -->
+        <div class="content-area">
+            <!-- Category Navigation (동적 렌더링) -->
+            <nav class="category-nav" id="categoryNav">
+                <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">
+                    <span class="cat-emoji">🍽️</span>
+                    <span class="cat-text">전체</span>
+                </button>
+                <button class="staff-call-btn" id="staffCallBtn">
+                    <i data-lucide="bell"></i>
+                    <span>호출</span>
+                </button>
+            </nav>
 
-        <!-- Menu Container (동적 렌더링) -->
-        <div class="menu-container" id="menuContainer">
-            <div class="menu-loading">메뉴를 불러오는 중...</div>
+            <!-- Menu Container (동적 렌더링) -->
+            <div class="menu-container" id="menuContainer">
+                <div class="menu-loading">메뉴를 불러오는 중...</div>
+            </div>
         </div>
 
         <!-- Cart Button -->

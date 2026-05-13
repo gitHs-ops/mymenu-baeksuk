@@ -120,37 +120,65 @@ body {
     color: var(--primary);
 }
 
-/* Category Navigation */
+/* Content Area: sidebar + menu */
+.content-area {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+/* Category Navigation - 좌측 사이드바 */
 .category-nav {
+    width: 64px;
+    flex-shrink: 0;
     background: var(--glass-bg);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    padding: 10px;
+    padding: 8px 6px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-md);
-    margin-bottom: 16px;
     display: flex;
-    overflow-x: auto;
-    gap: 6px;
-    scrollbar-width: none; /* Firefox */
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: sticky;
+    top: 8px;
+    max-height: calc(100svh - 120px);
+    scrollbar-width: none;
 }
 
 .category-nav::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
+    display: none;
 }
 
 .category-btn {
     background: transparent;
     color: var(--text-muted);
     border: none;
-    padding: 8px 14px;
-    border-radius: 12px;
-    font-size: 0.9em;
+    padding: 8px 4px;
+    border-radius: 10px;
+    font-size: 0.7em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.cat-emoji {
+    font-size: 1.5em;
+    line-height: 1;
+}
+
+.cat-text {
+    word-break: keep-all;
 }
 
 .category-btn:hover {
@@ -168,22 +196,22 @@ body {
     background: var(--secondary);
     color: white;
     border: none;
-    padding: 8px 14px;
-    border-radius: 12px;
-    font-size: 0.9em;
+    padding: 8px 4px;
+    border-radius: 10px;
+    font-size: 0.7em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    white-space: nowrap;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    margin-left: auto;
+    gap: 3px;
+    width: 100%;
+    margin-top: 4px;
 }
 
 .staff-call-btn:hover {
     background: var(--secondary-dark);
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
 }
 
@@ -197,9 +225,51 @@ body {
 
 /* Menu Container */
 .menu-container {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+}
+
+/* Menu Cards (JS가 생성하는 실제 클래스) */
+.menu-card {
+    background: var(--surface-solid);
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    border: 1px solid #f1f5f9;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-card.unavailable {
+    opacity: 0.45;
+}
+
+.menu-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.menu-name {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.menu-price {
+    font-size: 0.88em;
+    color: var(--primary);
+    font-weight: 600;
+    margin: 0;
 }
 
 .menu-section {
@@ -894,13 +964,22 @@ body {
         font-size: 1.3em;
     }
 
-    .category-btn {
-        padding: 7px 11px;
-        font-size: 0.82em;
+    .content-area {
+        gap: 6px;
+    }
+
+    .category-nav {
+        width: 58px;
+    }
+
+    .category-btn,
+    .staff-call-btn {
+        font-size: 0.65em;
+        padding: 7px 3px;
     }
 
     .add-btn {
-        padding: 7px 11px;
+        padding: 7px 10px;
         font-size: 0.8em;
     }
 

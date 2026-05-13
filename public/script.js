@@ -172,7 +172,7 @@ function renderMenu(menuItems) {
         const btn = document.createElement('button');
         btn.className = 'category-btn';
         btn.dataset.category = cat;
-        btn.innerHTML = `${CATEGORY_ICONS[cat] || '🍽️'} ${cat}`;
+        btn.innerHTML = `<span class="cat-emoji">${CATEGORY_ICONS[cat] || '🍽️'}</span><span class="cat-text">${cat}</span>`;
         btn.onclick = () => filterByCategory(cat);
         categoryNav.insertBefore(btn, staffCallBtn);
     });
