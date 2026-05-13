@@ -3,7 +3,7 @@ let orders = [];
 let staffCalls = [];
 let currentFilter = 'all';
 let soundEnabled = true;
-let selectedDate = new Date().toISOString().split('T')[0];
+let selectedDate = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; })();
 
 // DOM elements
 const currentTimeEl = document.getElementById('currentTime');
@@ -22,9 +22,18 @@ const orderDetailModal = document.getElementById('orderDetailModal');
 const closeDetailModal = document.getElementById('closeDetailModal');
 const orderDetailContent = document.getElementById('orderDetailContent');
 const soundToggle = document.getElementById('soundToggle');
+// staffCall 관련 요소는 DOMContentLoaded 안에서 참조
+let staffCallViewActive = false;
+let staffCallToggleBtn, ordersSectionEl, statsDashboardEl, orderStatsEl;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+    // 직원 호출 관련 DOM 요소 할당
+    staffCallToggleBtn = document.getElementById('staffCallToggle');
+    ordersSectionEl = document.querySelector('.orders-section');
+    statsDashboardEl = document.querySelector('.stats-dashboard');
+    orderStatsEl = document.querySelector('.order-stats');
+
     updateClock();
 
     // Update clock every second
@@ -34,31 +43,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dateFilterEl = document.getElementById('dateFilter');
     dateFilterEl.value = selectedDate;
 
+    let dateChanging = false;
+
+    function setDate(newDate) {
+        const y = newDate.getFullYear();
+        const m = String(newDate.getMonth() + 1).padStart(2, '0');
+        const d = String(newDate.getDate()).padStart(2, '0');
+        selectedDate = `${y}-${m}-${d}`;
+        dateChanging = true;
+        dateFilterEl.value = selectedDate;
+        dateChanging = false;
+        loadOrders();
+    }
+
     dateFilterEl.addEventListener('change', () => {
+        if (dateChanging) return;
         selectedDate = dateFilterEl.value;
         loadOrders();
     });
 
     document.getElementById('prevDay').addEventListener('click', () => {
-        const d = new Date(selectedDate + 'T00:00:00');
-        d.setDate(d.getDate() - 1);
-        selectedDate = d.toISOString().split('T')[0];
-        dateFilterEl.value = selectedDate;
-        loadOrders();
+        const [y, m, d] = selectedDate.split('-').map(Number);
+        setDate(new Date(y, m - 1, d - 1));
     });
 
     document.getElementById('nextDay').addEventListener('click', () => {
-        const d = new Date(selectedDate + 'T00:00:00');
-        d.setDate(d.getDate() + 1);
-        selectedDate = d.toISOString().split('T')[0];
-        dateFilterEl.value = selectedDate;
-        loadOrders();
+        const [y, m, d] = selectedDate.split('-').map(Number);
+        setDate(new Date(y, m - 1, d + 1));
     });
 
     document.getElementById('todayBtn').addEventListener('click', () => {
-        selectedDate = new Date().toISOString().split('T')[0];
-        dateFilterEl.value = selectedDate;
-        loadOrders();
+        setDate(new Date());
     });
 
     // Load initial orders and staff calls
@@ -75,7 +90,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.classList.add('active');
             currentFilter = card.dataset.status;
             renderOrders();
+            // 직원 호출 뷰 활성화 상태면 복귀
+            if (staffCallViewActive) toggleStaffCallView(false);
         });
+    });
+
+    // 직원 호출 토글 버튼
+    staffCallToggleBtn.addEventListener('click', () => {
+        toggleStaffCallView(!staffCallViewActive);
     });
 
     // Modal close
@@ -547,6 +569,28 @@ async function clearAllOrders() {
             alert('주문 삭제 중 오류가 발생했습니다.');
         }
     }
+}
+
+// Local date helpers (UTC 변환 없이 로컬 날짜 처리)
+function localDate(dateStr, offset = 0) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d + offset);
+}
+
+function localDateStr(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+// Toggle staff call view
+function toggleStaffCallView(show) {
+    staffCallViewActive = show;
+    staffCallToggleBtn.classList.toggle('active', show);
+    ordersSectionEl.style.display = show ? 'none' : '';
+    statsDashboardEl.style.display = show ? 'none' : '';
+    orderStatsEl.style.display = show ? 'none' : '';
 }
 
 // Format price

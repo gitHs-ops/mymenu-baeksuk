@@ -2,6 +2,17 @@
 let cart = [];
 let tableNumber = getTableNumberFromURL() || Math.floor(Math.random() * 20) + 1;
 
+const CATEGORY_ICONS = {
+    '탕수육': '🥘',
+    '요리':   '🍲',
+    '면':     '🍜',
+    '밥':     '🍚',
+    '1인세트':'🎁',
+    '2인세트':'🎁',
+    '계절':   '🌸',
+    '주류':   '🍺',
+};
+
 // Get table number from URL parameter
 function getTableNumberFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -33,21 +44,12 @@ const staffCallConfirmModal = document.getElementById('staffCallConfirmModal');
 const closeStaffCallConfirm = document.getElementById('closeStaffCallConfirm');
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Display table number
     tableNumberSpan.textContent = tableNumber;
 
-    // Add event listeners to all "Add" buttons
-    const addButtons = document.querySelectorAll('.add-btn');
-    addButtons.forEach(button => {
-        button.addEventListener('click', handleAddToCart);
-    });
-
-    // Category navigation
-    const categoryButtons = document.querySelectorAll('.category-btn');
-    categoryButtons.forEach(button => {
-        button.addEventListener('click', handleCategoryClick);
-    });
+    // Load menu from API
+    await loadMenu();
 
     // Cart button click
     cartButton.addEventListener('click', openCart);
@@ -137,6 +139,76 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load cart from localStorage
     loadCart();
 });
+
+// Load menu from API and render
+async function loadMenu() {
+    const menuContainer = document.getElementById('menuContainer');
+    const categoryNav = document.getElementById('categoryNav');
+    try {
+        const items = await apiClient.getMenu();
+        renderMenu(items, menuContainer, categoryNav);
+    } catch (error) {
+        console.error('Error loading menu:', error);
+        menuContainer.innerHTML = '<div class="menu-loading">메뉴를 불러오는데 실패했습니다</div>';
+    }
+}
+
+function renderMenu(items, menuContainer, categoryNav) {
+    // Group by category (insertion order 유지)
+    const categories = {};
+    items.forEach(item => {
+        if (!item.is_available) return;
+        if (!categories[item.category]) categories[item.category] = [];
+        categories[item.category].push(item);
+    });
+
+    // 카테고리 nav 버튼 동적 생성 (직원호출 버튼 앞에 삽입)
+    const staffCallBtn = categoryNav.querySelector('.staff-call-btn');
+    categoryNav.querySelectorAll('.category-btn:not([data-category="all"])').forEach(b => b.remove());
+
+    Object.keys(categories).forEach(cat => {
+        const icon = CATEGORY_ICONS[cat] || '🍽️';
+        const btn = document.createElement('button');
+        btn.className = 'category-btn';
+        btn.dataset.category = cat;
+        btn.textContent = `${icon} ${cat}`;
+        categoryNav.insertBefore(btn, staffCallBtn);
+    });
+
+    categoryNav.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', handleCategoryClick);
+    });
+
+    // 메뉴 섹션 동적 생성
+    menuContainer.innerHTML = '';
+    Object.entries(categories).forEach(([cat, catItems]) => {
+        const icon = CATEGORY_ICONS[cat] || '🍽️';
+        const section = document.createElement('section');
+        section.className = 'menu-section';
+        section.dataset.category = cat;
+
+        const itemsHTML = catItems.map(item => `
+            <div class="menu-item" data-name="${item.name}" data-price="${item.price}">
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price">${Math.round(item.price).toLocaleString('ko-KR')}원</div>
+                </div>
+                <button class="add-btn">담기</button>
+            </div>
+        `).join('');
+
+        section.innerHTML = `
+            <h2 class="section-title">${icon} ${cat}</h2>
+            <div class="menu-grid">${itemsHTML}</div>
+        `;
+        menuContainer.appendChild(section);
+    });
+
+    // 담기 버튼 이벤트 연결
+    menuContainer.querySelectorAll('.add-btn').forEach(btn => {
+        btn.addEventListener('click', handleAddToCart);
+    });
+}
 
 // Add item to cart
 function handleAddToCart(e) {
@@ -341,13 +413,13 @@ window.removeItem = removeItem;
 
 // Category filter function
 function handleCategoryClick(e) {
-    const category = e.target.dataset.category;
+    const category = e.currentTarget.dataset.category;
     const sections = document.querySelectorAll('.menu-section');
     const buttons = document.querySelectorAll('.category-btn');
-    
+
     // Update active button
     buttons.forEach(btn => btn.classList.remove('active'));
-    e.target.classList.add('active');
+    e.currentTarget.classList.add('active');
     
     // Show/hide sections
     if (category === 'all') {

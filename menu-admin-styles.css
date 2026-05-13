@@ -189,16 +189,20 @@
 }
 .btn-row-edit:hover { opacity: 0.8; }
 .btn-row-delete {
-    background: #ff4757;
-    color: white;
-    border: none;
+    background: transparent;
+    color: #aaa;
+    border: 1px solid #ddd;
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 0.9em;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
 }
-.btn-row-delete:hover { opacity: 0.8; }
+.btn-row-delete:hover {
+    background: #fff0f0;
+    color: #ff4757;
+    border-color: #ffaaaa;
+}
 
 /* 수정 모달 */
 .edit-form-wrap { padding: 20px; }

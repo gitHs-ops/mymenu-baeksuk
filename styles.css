@@ -123,6 +123,14 @@ body {
     box-shadow: 0 6px 12px rgba(245, 87, 108, 0.4);
 }
 
+/* Menu Loading */
+.menu-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 1.2em;
+}
+
 /* Menu Container */
 .menu-container {
     display: flex;
