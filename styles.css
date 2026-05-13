@@ -92,8 +92,17 @@ body {
     -webkit-background-clip: text;
 }
 
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
 .history-btn {
-    margin-top: 12px;
+    margin-top: 0;
     background: var(--surface-solid);
     color: var(--text-main);
     border: 1px solid var(--glass-border);
@@ -471,8 +480,8 @@ body {
 .close-btn {
     background: #f1f5f9;
     border: none;
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -480,6 +489,10 @@ body {
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 1.8em;
+    font-weight: 600;
+    line-height: 1;
+    padding: 0;
 }
 
 .close-btn:hover {
@@ -528,20 +541,60 @@ body {
     font-size: 0.9em;
 }
 
-.cart-item-controls {
+.cart-item-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
-.quantity-btn {
+.quantity-controls {
+    display: inline-flex;
+    align-items: center;
     background: #f1f5f9;
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.quantity-controls button {
+    background: #fff;
     color: var(--text-main);
     border: none;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
-    font-size: 1em;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.quantity-controls button:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+.quantity-controls span {
+    font-size: 1.05em;
+    font-weight: 700;
+    min-width: 28px;
+    text-align: center;
+    color: var(--text-main);
+}
+
+.remove-item {
+    background: #fef2f2;
+    color: #ef4444;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
@@ -549,31 +602,9 @@ body {
     justify-content: center;
 }
 
-.quantity-btn:hover {
-    background: #e2e8f0;
-}
-
-.quantity {
-    font-size: 1em;
-    font-weight: 700;
-    min-width: 24px;
-    text-align: center;
-}
-
-.remove-btn {
-    background: #fef2f2;
-    color: #ef4444;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.85em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.remove-btn:hover {
-    background: #fee2e2;
+.remove-item:hover {
+    background: #ef4444;
+    color: #fff;
 }
 
 .cart-summary {
