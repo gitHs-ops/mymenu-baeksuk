@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>판매 통계 - 업주용</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="stats-styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="header-top">
+                <h1>📊 판매 통계</h1>
+                <a href="/admin" class="menu-manage-btn">
+                    <i data-lucide="arrow-left"></i> 주문 관리로
+                </a>
+            </div>
+            <div class="period-tabs">
+                <button class="period-btn active" data-period="daily">일간 (30일)</button>
+                <button class="period-btn" data-period="weekly">주간 (12주)</button>
+                <button class="period-btn" data-period="monthly">월간 (12개월)</button>
+            </div>
+        </header>
+
+        <section class="stats-summary">
+            <div class="summary-card">
+                <div class="summary-label">총 매출</div>
+                <div class="summary-value" id="sumRevenue">0원</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">총 주문</div>
+                <div class="summary-value" id="sumOrders">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">평균 주문가</div>
+                <div class="summary-value" id="avgOrder">0원</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">최고 매출 구간</div>
+                <div class="summary-value" id="peakLabel">-</div>
+            </div>
+        </section>
+
+        <section class="chart-section">
+            <h2>매출 추이</h2>
+            <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+        </section>
+
+        <section class="chart-section">
+            <h2>주문 건수</h2>
+            <div class="chart-wrap"><canvas id="countChart"></canvas></div>
+        </section>
+    </div>
+
+    <script src="/api-client.js"></script>
+    <script src="/stats-script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -96,9 +96,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // 대기 버튼 → 주문 목록 표시
+    // 대기 버튼 → 주문 목록 + 대기중 필터
     pendingToggleBtn.addEventListener('click', () => {
         toggleStaffCallView(false);
+        currentFilter = 'pending';
+        statFilters.forEach(c => c.classList.toggle('active', c.dataset.status === 'pending'));
+        renderOrders();
     });
 
     // 직원 호출 버튼 → 직원 호출 목록 표시

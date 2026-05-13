@@ -605,6 +605,81 @@ app.get('/api/statistics', async (req, res) => {
     }
 });
 
+// Sales trend statistics (daily / weekly / monthly, KST)
+app.get('/api/sales-stats', async (req, res) => {
+    const period = (req.query.period || 'daily').toLowerCase();
+
+    const kstLabel = (d, p) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        if (p === 'monthly') return `${y}-${m}`;
+        if (p === 'weekly') {
+            const tmp = new Date(Date.UTC(y, d.getMonth(), d.getDate()));
+            const dayNum = tmp.getUTCDay() || 7;
+            tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+            const week = Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
+            return `${tmp.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+        }
+        return `${y}-${m}-${day}`;
+    };
+
+    if (!USE_DATABASE) {
+        const now = Date.now();
+        const windowMs = period === 'monthly' ? 365 * 86400000
+            : period === 'weekly' ? 84 * 86400000
+            : 30 * 86400000;
+        const cutoff = now - windowMs;
+        const buckets = new Map();
+        memoryOrders.forEach(o => {
+            const t = new Date(o.created_at).getTime();
+            if (t < cutoff) return;
+            const kst = new Date(t + 9 * 3600 * 1000);
+            const label = kstLabel(kst, period);
+            const cur = buckets.get(label) || { label, count: 0, revenue: 0 };
+            cur.count += 1;
+            cur.revenue += parseFloat(o.total) || 0;
+            buckets.set(label, cur);
+        });
+        const result = [...buckets.values()].sort((a, b) => a.label.localeCompare(b.label));
+        return res.json(result);
+    }
+
+    try {
+        let groupExpr, rangeExpr;
+        if (period === 'monthly') {
+            groupExpr = "DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+09:00'), '%Y-%m')";
+            rangeExpr = 'created_at >= UTC_TIMESTAMP() - INTERVAL 12 MONTH';
+        } else if (period === 'weekly') {
+            groupExpr = "DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+09:00'), '%x-W%v')";
+            rangeExpr = 'created_at >= UTC_TIMESTAMP() - INTERVAL 12 WEEK';
+        } else {
+            groupExpr = "DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+09:00'), '%Y-%m-%d')";
+            rangeExpr = 'created_at >= UTC_TIMESTAMP() - INTERVAL 30 DAY';
+        }
+
+        const sql = `
+            SELECT ${groupExpr} AS label,
+                   COUNT(*) AS count,
+                   COALESCE(SUM(total), 0) AS revenue
+            FROM orders
+            WHERE ${rangeExpr}
+            GROUP BY label
+            ORDER BY label ASC
+        `;
+        const [rows] = await pool.query(sql);
+        res.json(rows.map(r => ({
+            label: r.label,
+            count: Number(r.count),
+            revenue: Number(r.revenue)
+        })));
+    } catch (error) {
+        console.error('Error fetching sales stats:', error);
+        res.status(500).json({ error: 'Failed to fetch sales stats', details: error.message });
+    }
+});
+
 // Staff call endpoints
 app.get('/api/staff-calls', async (req, res) => {
     if (!USE_DATABASE) {
@@ -728,6 +803,10 @@ app.get('/qr-generator', (req, res) => {
 
 app.get('/menu-admin', (req, res) => {
     res.sendFile(__dirname + '/menu-admin.html');
+});
+
+app.get('/stats', (req, res) => {
+    res.sendFile(__dirname + '/stats.html');
 });
 
 // Initialize and start server
