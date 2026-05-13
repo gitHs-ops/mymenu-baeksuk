@@ -67,7 +67,7 @@ function renderMenuList() {
             row.dataset.id = item.id;
             row.innerHTML = `
                 <span class="menu-row-name">${item.name}</span>
-                <span class="menu-row-price">${Number(item.price).toLocaleString('ko-KR')}원</span>
+                <span class="menu-row-price">${Math.round(Number(item.price)).toLocaleString('ko-KR')}원</span>
                 <div class="menu-row-actions">
                     <label class="availability-toggle" title="${item.is_available ? '판매중' : '판매중지'}">
                         <input type="checkbox" ${item.is_available ? 'checked' : ''}
@@ -109,7 +109,7 @@ function openEdit(id) {
     document.getElementById('editId').value = id;
     document.getElementById('editName').value = item.name;
     document.getElementById('editCategory').value = item.category;
-    document.getElementById('editPrice').value = item.price;
+    document.getElementById('editPrice').value = Math.round(Number(item.price));
     editModal.classList.add('active');
 }
 

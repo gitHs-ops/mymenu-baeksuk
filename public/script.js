@@ -170,16 +170,11 @@ function renderMenu(items, menuContainer, categoryNav) {
         const icon = CATEGORY_ICONS[cat] || '🍽️';
         const btn = document.createElement('button');
         btn.className = 'category-btn';
-        btn.dataset.category = cat;
+        btn.setAttribute('data-category', cat);
+        btn.setAttribute('onclick', `filterByCategory(this.getAttribute('data-category'))`);
         btn.textContent = `${icon} ${cat}`;
         categoryNav.insertBefore(btn, staffCallBtn);
     });
-
-    // 이벤트 위임 (중복 방지)
-    if (!categoryNav._catListener) {
-        categoryNav.addEventListener('click', handleCategoryClick);
-        categoryNav._catListener = true;
-    }
 
     // 메뉴 섹션 동적 생성
     menuContainer.innerHTML = '';
@@ -413,21 +408,16 @@ window.removeItem = removeItem;
 
 // Made with Bob
 
-// Category filter function (event delegation)
-function handleCategoryClick(e) {
-    const btn = e.target.closest('.category-btn[data-category]');
-    if (!btn) return;
-    const category = btn.dataset.category;
-
-    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    document.querySelectorAll('.menu-section').forEach(section => {
-        section.classList.toggle('hidden', category !== 'all' && section.dataset.category !== category);
+function filterByCategory(category) {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === category);
     });
-
-    document.querySelector('.menu-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.menu-section').forEach(section => {
+        section.style.display = (category === 'all' || section.dataset.category === category) ? '' : 'none';
+    });
 }
+
+window.filterByCategory = filterByCategory;
 
 // Open order history
 async function openHistory() {
