@@ -329,7 +329,9 @@ function createOrderCard(order) {
         `;
     }
     actionsHTML += `<button class="action-btn btn-view" onclick="viewOrderDetail('${order.id}')"><i data-lucide="eye"></i> 상세</button>`;
-    actionsHTML += `<button class="action-btn btn-delete" onclick="deleteOrder('${order.id}')"><i data-lucide="trash-2"></i></button>`;
+    if (order.status !== 'pending') {
+        actionsHTML += `<button class="action-btn btn-delete" onclick="deleteOrder('${order.id}')"><i data-lucide="trash-2"></i></button>`;
+    }
 
     card.innerHTML = `
         <div class="order-header">
