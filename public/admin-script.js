@@ -131,7 +131,8 @@ function handleWebSocketMessage(data) {
             if (soundEnabled) playNotificationSound();
             showNotification(`새 주문! 테이블 ${data.order.tableNumber || data.order.table_number}`);
 
-            const orderDate = (data.order.created_at || '').split('T')[0];
+            const d = new Date(data.order.created_at);
+            const orderDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
             if (orderDate === selectedDate) {
                 orders.unshift(data.order);
                 updateStats();
