@@ -8,10 +8,10 @@
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
-    --background: #cbd5e1;
-    --surface: #f8fafc;
-    --text-main: #1e293b;
-    --text-muted: #475569;
+    --background: #334155;
+    --surface: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --radius-lg: 1rem;
     --font-main: 'Outfit', sans-serif;
@@ -42,7 +42,7 @@ body {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     margin-bottom: 24px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header-top {
@@ -180,7 +180,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .stat-card.highlight {
