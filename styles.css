@@ -35,14 +35,14 @@ body {
     background-attachment: fixed;
     color: var(--text-main);
     min-height: 100vh;
-    padding-bottom: 100px;
+    padding-bottom: 80px;
     line-height: 1.5;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 480px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 12px;
 }
 
 /* Header */
@@ -50,7 +50,7 @@ body {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    padding: 24px;
+    padding: 16px;
     border-radius: var(--radius-xl);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-lg);
@@ -72,9 +72,9 @@ body {
 
 .header h1 {
     color: var(--text-main);
-    font-size: 1.8em;
+    font-size: 1.5em;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     letter-spacing: -0.02em;
 }
 
@@ -93,13 +93,13 @@ body {
 }
 
 .history-btn {
-    margin-top: 16px;
+    margin-top: 12px;
     background: var(--surface-solid);
     color: var(--text-main);
     border: 1px solid var(--glass-border);
-    padding: 10px 18px;
+    padding: 8px 14px;
     border-radius: 20px;
-    font-size: 0.9em;
+    font-size: 0.85em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -125,14 +125,14 @@ body {
     background: var(--glass-bg);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    padding: 12px;
+    padding: 10px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-md);
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     display: flex;
     overflow-x: auto;
-    gap: 8px;
+    gap: 6px;
     scrollbar-width: none; /* Firefox */
 }
 
@@ -144,9 +144,9 @@ body {
     background: transparent;
     color: var(--text-muted);
     border: none;
-    padding: 10px 20px;
+    padding: 8px 14px;
     border-radius: 12px;
-    font-size: 0.95em;
+    font-size: 0.9em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -168,9 +168,9 @@ body {
     background: var(--secondary);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 14px;
     border-radius: 12px;
-    font-size: 0.95em;
+    font-size: 0.9em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -199,18 +199,18 @@ body {
 .menu-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
 }
 
 .menu-section {
     background: var(--surface);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    padding: 24px;
+    padding: 14px;
     border-radius: var(--radius-xl);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-md);
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 .section-title {
@@ -240,7 +240,7 @@ body {
 
 .menu-item {
     background: var(--surface-solid);
-    padding: 16px;
+    padding: 12px 14px;
     border-radius: var(--radius-lg);
     border: 1px solid #f1f5f9;
     box-shadow: var(--shadow-sm);
@@ -248,6 +248,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
 }
 
 .menu-item:hover {
@@ -263,30 +264,33 @@ body {
 }
 
 .item-name {
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 600;
     color: var(--text-main);
+    min-width: 80px;
 }
 
 .item-price {
-    font-size: 0.95em;
+    font-size: 0.9em;
     color: var(--primary);
     font-weight: 600;
+    min-width: 60px;
 }
 
 .add-btn {
     background: var(--primary);
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 8px 14px;
     border-radius: 10px;
-    font-size: 0.9em;
+    font-size: 0.85em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    flex-shrink: 0;
 }
 
 .add-btn:hover {
@@ -302,15 +306,15 @@ body {
 /* Cart Button */
 .cart-button {
     position: fixed;
-    bottom: 32px;
+    bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--primary);
     color: white;
     border: none;
-    padding: 14px 32px;
+    padding: 12px 28px;
     border-radius: 30px;
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
@@ -318,7 +322,8 @@ body {
     z-index: 100;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    white-space: nowrap;
 }
 
 .cart-button:hover {
@@ -362,9 +367,9 @@ body {
 .modal-content {
     background: var(--surface-solid);
     border-radius: var(--radius-xl);
-    width: 90%;
-    max-width: 500px;
-    max-height: 85vh;
+    width: 95%;
+    max-width: 480px;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     box-shadow: var(--shadow-lg);
@@ -596,8 +601,9 @@ body {
 
 .history-order-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
     margin-bottom: 10px;
     padding-bottom: 10px;
     border-bottom: 1px solid #e0e0e0;
@@ -878,127 +884,38 @@ body {
     transform: scale(1.05);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* Very small phones (< 360px) */
+@media (max-width: 360px) {
     .container {
-        padding: 10px;
+        padding: 8px;
     }
 
     .header h1 {
-        font-size: 1.5em;
-    }
-
-    .category-nav {
-        padding: 10px;
-        gap: 8px;
+        font-size: 1.3em;
     }
 
     .category-btn {
-        padding: 10px 16px;
-        font-size: 0.9em;
-    }
-
-    .menu-item {
-        padding: 12px 15px;
-        gap: 10px;
-    }
-
-    .item-info {
-        gap: 10px;
-    }
-
-    .item-name {
-        font-size: 1em;
-        min-width: 100px;
-    }
-
-    .item-price {
-        font-size: 0.95em;
-        min-width: 70px;
+        padding: 7px 11px;
+        font-size: 0.82em;
     }
 
     .add-btn {
-        padding: 8px 20px;
-        font-size: 0.9em;
+        padding: 7px 11px;
+        font-size: 0.8em;
     }
 
     .cart-button {
-        bottom: 10px;
-        right: 10px;
-        padding: 12px 20px;
-        font-size: 1em;
-    }
-
-    .modal-content {
-        width: 95%;
-        max-height: 90vh;
-    }
-
-    .section-title {
-        font-size: 1.2em;
-    }
-
-    .history-btn {
-        padding: 8px 16px;
+        padding: 10px 20px;
         font-size: 0.9em;
-    }
-
-    .history-order {
-        padding: 12px;
-    }
-
-    .history-order-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .split-calculator {
-        padding: 15px;
-    }
-
-    .split-header h3 {
-        font-size: 1.1em;
-    }
-
-    .split-total,
-    .split-result {
-        font-size: 1em;
-        padding: 12px;
-    }
-
-    .split-total strong {
-        font-size: 1.2em;
-    }
-
-    .split-result strong {
-        font-size: 1.3em;
-    }
-}
-
-@media (max-width: 480px) {
-    .item-name {
-        min-width: 80px;
-        font-size: 0.95em;
-    }
-
-    .item-price {
-        min-width: 60px;
-        font-size: 0.9em;
-    }
-
-    .add-btn {
-        padding: 8px 15px;
-        font-size: 0.85em;
     }
 
     .cart-item {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         align-items: flex-start;
     }
 
-    .cart-item-controls {
+    .cart-item-actions {
         width: 100%;
         justify-content: space-between;
     }
