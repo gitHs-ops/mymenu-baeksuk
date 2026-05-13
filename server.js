@@ -413,11 +413,11 @@ app.post('/api/orders', async (req, res) => {
             type: 'new_order',
             order: {
                 id,
-                tableNumber,
+                table_number: tableNumber,
                 items,
                 total,
                 status: 'pending',
-                timestamp: timestamp || new Date()
+                created_at: createdAt.toISOString()
             }
         });
         
