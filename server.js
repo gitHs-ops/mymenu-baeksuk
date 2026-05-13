@@ -359,7 +359,8 @@ app.get('/api/orders/:id', async (req, res) => {
 
 // Create new order
 app.post('/api/orders', async (req, res) => {
-    const { id, tableNumber, items, total, timestamp } = req.body;
+    const { id: clientId, tableNumber, items, total, timestamp } = req.body;
+    const id = clientId || ('order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
     
     if (!USE_DATABASE) {
         // Use in-memory storage
