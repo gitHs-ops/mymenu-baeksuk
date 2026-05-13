@@ -228,13 +228,24 @@ app.get('/api/health', (req, res) => {
 
 // Get all orders
 app.get('/api/orders', async (req, res) => {
+    // Compute KST [start, end) UTC range for a YYYY-MM-DD KST date
+    const kstRange = (date) => {
+        const [y, m, d] = date.split('-').map(Number);
+        const startMs = Date.UTC(y, m - 1, d) - 9 * 3600 * 1000;
+        return { startMs, endMs: startMs + 24 * 3600 * 1000 };
+    };
+
     if (!USE_DATABASE) {
         // Use in-memory storage
         const { status, date } = req.query;
         let filteredOrders = memoryOrders;
 
         if (date) {
-            filteredOrders = filteredOrders.filter(o => (o.created_at || '').startsWith(date));
+            const { startMs, endMs } = kstRange(date);
+            filteredOrders = filteredOrders.filter(o => {
+                const t = new Date(o.created_at).getTime();
+                return t >= startMs && t < endMs;
+            });
         }
 
         if (status && status !== 'all') {
@@ -253,7 +264,8 @@ app.get('/api/orders', async (req, res) => {
         const conditions = [];
 
         if (date) {
-            conditions.push('DATE(created_at) = ?');
+            // Compare in KST: created_at (UTC) shifted +9h, then take DATE
+            conditions.push("DATE(CONVERT_TZ(created_at, '+00:00', '+09:00')) = ?");
             orderParams.push(date);
         }
 
@@ -583,7 +595,7 @@ app.get('/api/statistics', async (req, res) => {
                 SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_orders,
                 SUM(total) as total_revenue
             FROM orders
-            WHERE DATE(created_at) = CURDATE()
+            WHERE DATE(CONVERT_TZ(created_at, '+00:00', '+09:00')) = DATE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+09:00'))
         `);
         
         res.json(stats[0]);
