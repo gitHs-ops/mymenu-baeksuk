@@ -79,6 +79,77 @@ async function initializeDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         `);
 
+        // Create menu_items table
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS menu_items (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL UNIQUE,
+                category VARCHAR(50) NOT NULL,
+                price DECIMAL(10, 2) NOT NULL,
+                is_available BOOLEAN DEFAULT TRUE,
+                sort_order INT DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX idx_category (category),
+                INDEX idx_is_available (is_available)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+
+        // 기존 테이블에 sort_order 컬럼 없을 경우 추가 (마이그레이션)
+        try {
+            await connection.query('ALTER TABLE menu_items ADD COLUMN sort_order INT DEFAULT 0 AFTER is_available');
+            console.log('✅ sort_order column added');
+        } catch (e) {
+            // 이미 존재하면 무시
+        }
+
+        // Seed menu items
+        await connection.query(`
+            INSERT INTO menu_items (name, category, price, sort_order) VALUES
+            ('탕수육 미니',   '탕수육', 15000,  1),
+            ('탕수육 (소)',   '탕수육', 20000,  2),
+            ('탕수육 (중)',   '탕수육', 25000,  3),
+            ('탕수육 (대)',   '탕수육', 30000,  4),
+            ('양장피',       '요리',   50000, 10),
+            ('팔보채',       '요리',   50000, 11),
+            ('깐풍육',       '요리',   40000, 12),
+            ('라조육',       '요리',   40000, 13),
+            ('쟁반짜장',     '요리',   24000, 14),
+            ('쟁반짬뽕',     '요리',   26000, 15),
+            ('짬짜면',       '요리',   10000, 16),
+            ('군만두',       '요리',    6000, 17),
+            ('짜장면',       '면',      7000, 20),
+            ('짬뽕',         '면',      9000, 21),
+            ('간짜장',       '면',      9000, 22),
+            ('우동',         '면',      9000, 23),
+            ('울면',         '면',     10000, 24),
+            ('야끼우동',     '면',     11000, 25),
+            ('삼선면',       '면',     13000, 26),
+            ('볶음밥',       '밥',      9000, 30),
+            ('짬뽕밥',       '밥',     10000, 31),
+            ('잡채밥',       '밥',     10000, 32),
+            ('중화비빔밥',   '밥',     11000, 33),
+            ('야끼밥',       '밥',     11000, 34),
+            ('짜장밥',       '밥',      8000, 35),
+            ('간1+탕수육',   '1인세트', 19000, 40),
+            ('짬1+탕수육',   '1인세트', 19000, 41),
+            ('짜1+탕수육',   '1인세트', 17000, 42),
+            ('볶1+탕수육',   '1인세트', 19000, 43),
+            ('짜2+탕수육',   '2인세트', 24000, 50),
+            ('짜+짬+탕수육', '2인세트', 25000, 51),
+            ('짬2+탕수육',   '2인세트', 28000, 52),
+            ('간2+탕수육',   '2인세트', 28000, 53),
+            ('볶2+탕수육',   '2인세트', 28000, 54),
+            ('콩국수',       '계절',    8000, 60),
+            ('밀면',         '계절',    8000, 61),
+            ('소주',         '주류',    4000, 70),
+            ('맥주',         '주류',    4000, 71),
+            ('고량주',       '주류',    6000, 72),
+            ('이과두주',     '주류',    5000, 73),
+            ('음료수',       '주류',    2000, 74)
+            ON DUPLICATE KEY UPDATE price=VALUES(price), sort_order=VALUES(sort_order)
+        `);
+
         console.log('✅ Database tables initialized');
         connection.release();
     } catch (error) {
