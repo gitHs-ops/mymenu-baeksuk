@@ -14,6 +14,50 @@ const USE_DATABASE = (process.env.DB_HOST || process.env.MYSQLHOST) &&
 let memoryOrders = [];
 let staffCalls = [];
 
+const memoryMenu = [
+    { id:  1, name: '탕수육 미니',   category: '탕수육',  price: 15000, is_available: true, sort_order:  1 },
+    { id:  2, name: '탕수육 (소)',   category: '탕수육',  price: 20000, is_available: true, sort_order:  2 },
+    { id:  3, name: '탕수육 (중)',   category: '탕수육',  price: 25000, is_available: true, sort_order:  3 },
+    { id:  4, name: '탕수육 (대)',   category: '탕수육',  price: 30000, is_available: true, sort_order:  4 },
+    { id:  5, name: '양장피',       category: '요리',    price: 50000, is_available: true, sort_order: 10 },
+    { id:  6, name: '팔보채',       category: '요리',    price: 50000, is_available: true, sort_order: 11 },
+    { id:  7, name: '깐풍육',       category: '요리',    price: 40000, is_available: true, sort_order: 12 },
+    { id:  8, name: '라조육',       category: '요리',    price: 40000, is_available: true, sort_order: 13 },
+    { id:  9, name: '쟁반짜장',     category: '요리',    price: 24000, is_available: true, sort_order: 14 },
+    { id: 10, name: '쟁반짬뽕',     category: '요리',    price: 26000, is_available: true, sort_order: 15 },
+    { id: 11, name: '짬짜면',       category: '요리',    price: 10000, is_available: true, sort_order: 16 },
+    { id: 12, name: '군만두',       category: '요리',    price:  6000, is_available: true, sort_order: 17 },
+    { id: 13, name: '짜장면',       category: '면',      price:  7000, is_available: true, sort_order: 20 },
+    { id: 14, name: '짬뽕',         category: '면',      price:  9000, is_available: true, sort_order: 21 },
+    { id: 15, name: '간짜장',       category: '면',      price:  9000, is_available: true, sort_order: 22 },
+    { id: 16, name: '우동',         category: '면',      price:  9000, is_available: true, sort_order: 23 },
+    { id: 17, name: '울면',         category: '면',      price: 10000, is_available: true, sort_order: 24 },
+    { id: 18, name: '야끼우동',     category: '면',      price: 11000, is_available: true, sort_order: 25 },
+    { id: 19, name: '삼선면',       category: '면',      price: 13000, is_available: true, sort_order: 26 },
+    { id: 20, name: '볶음밥',       category: '밥',      price:  9000, is_available: true, sort_order: 30 },
+    { id: 21, name: '짬뽕밥',       category: '밥',      price: 10000, is_available: true, sort_order: 31 },
+    { id: 22, name: '잡채밥',       category: '밥',      price: 10000, is_available: true, sort_order: 32 },
+    { id: 23, name: '중화비빔밥',   category: '밥',      price: 11000, is_available: true, sort_order: 33 },
+    { id: 24, name: '야끼밥',       category: '밥',      price: 11000, is_available: true, sort_order: 34 },
+    { id: 25, name: '짜장밥',       category: '밥',      price:  8000, is_available: true, sort_order: 35 },
+    { id: 26, name: '간1+탕수육',   category: '1인세트', price: 19000, is_available: true, sort_order: 40 },
+    { id: 27, name: '짬1+탕수육',   category: '1인세트', price: 19000, is_available: true, sort_order: 41 },
+    { id: 28, name: '짜1+탕수육',   category: '1인세트', price: 17000, is_available: true, sort_order: 42 },
+    { id: 29, name: '볶1+탕수육',   category: '1인세트', price: 19000, is_available: true, sort_order: 43 },
+    { id: 30, name: '짜2+탕수육',   category: '2인세트', price: 24000, is_available: true, sort_order: 50 },
+    { id: 31, name: '짜+짬+탕수육', category: '2인세트', price: 25000, is_available: true, sort_order: 51 },
+    { id: 32, name: '짬2+탕수육',   category: '2인세트', price: 28000, is_available: true, sort_order: 52 },
+    { id: 33, name: '간2+탕수육',   category: '2인세트', price: 28000, is_available: true, sort_order: 53 },
+    { id: 34, name: '볶2+탕수육',   category: '2인세트', price: 28000, is_available: true, sort_order: 54 },
+    { id: 35, name: '콩국수',       category: '계절',    price:  8000, is_available: true, sort_order: 60 },
+    { id: 36, name: '밀면',         category: '계절',    price:  8000, is_available: true, sort_order: 61 },
+    { id: 37, name: '소주',         category: '주류',    price:  4000, is_available: true, sort_order: 70 },
+    { id: 38, name: '맥주',         category: '주류',    price:  4000, is_available: true, sort_order: 71 },
+    { id: 39, name: '고량주',       category: '주류',    price:  6000, is_available: true, sort_order: 72 },
+    { id: 40, name: '이과두주',     category: '주류',    price:  5000, is_available: true, sort_order: 73 },
+    { id: 41, name: '음료수',       category: '주류',    price:  2000, is_available: true, sort_order: 74 },
+];
+
 if (USE_DATABASE) {
     const db = require('./database/db');
     pool = db.pool;
@@ -74,6 +118,105 @@ function broadcast(data) {
         }
     });
 }
+
+// Get menu items
+app.get('/api/menu', async (req, res) => {
+    if (!USE_DATABASE) {
+        return res.json(memoryMenu);
+    }
+    try {
+        const [items] = await pool.query(
+            'SELECT id, name, category, price, is_available, sort_order FROM menu_items WHERE is_available = TRUE ORDER BY sort_order ASC'
+        );
+        res.json(items);
+    } catch (error) {
+        console.error('Error fetching menu:', error);
+        res.status(500).json({ error: 'Failed to fetch menu', details: error.message });
+    }
+});
+
+// Add menu item
+app.post('/api/menu', async (req, res) => {
+    const { name, category, price } = req.body;
+    if (!name || !category || price === undefined) {
+        return res.status(400).json({ error: 'name, category, price required' });
+    }
+    if (!USE_DATABASE) {
+        const newId = Math.max(0, ...memoryMenu.map(i => i.id)) + 1;
+        const sortOrder = newId * 10;
+        const item = { id: newId, name, category, price: parseFloat(price), is_available: true, sort_order: sortOrder };
+        memoryMenu.push(item);
+        return res.status(201).json(item);
+    }
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO menu_items (name, category, price) VALUES (?, ?, ?)',
+            [name, category, parseFloat(price)]
+        );
+        const [rows] = await pool.query('SELECT * FROM menu_items WHERE id = ?', [result.insertId]);
+        res.status(201).json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to add menu item', details: error.message });
+    }
+});
+
+// Update menu item
+app.put('/api/menu/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { name, category, price } = req.body;
+    if (!USE_DATABASE) {
+        const item = memoryMenu.find(i => i.id === id);
+        if (!item) return res.status(404).json({ error: 'Not found' });
+        if (name !== undefined) item.name = name;
+        if (category !== undefined) item.category = category;
+        if (price !== undefined) item.price = parseFloat(price);
+        return res.json(item);
+    }
+    try {
+        await pool.query(
+            'UPDATE menu_items SET name=?, category=?, price=? WHERE id=?',
+            [name, category, parseFloat(price), id]
+        );
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update menu item', details: error.message });
+    }
+});
+
+// Toggle menu availability
+app.patch('/api/menu/:id/availability', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { is_available } = req.body;
+    if (!USE_DATABASE) {
+        const item = memoryMenu.find(i => i.id === id);
+        if (!item) return res.status(404).json({ error: 'Not found' });
+        item.is_available = Boolean(is_available);
+        return res.json(item);
+    }
+    try {
+        await pool.query('UPDATE menu_items SET is_available=? WHERE id=?', [is_available ? 1 : 0, id]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update availability', details: error.message });
+    }
+});
+
+// Delete menu item
+app.delete('/api/menu/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (!USE_DATABASE) {
+        const idx = memoryMenu.findIndex(i => i.id === id);
+        if (idx === -1) return res.status(404).json({ error: 'Not found' });
+        memoryMenu.splice(idx, 1);
+        return res.json({ success: true });
+    }
+    try {
+        await pool.query('DELETE FROM menu_items WHERE id=?', [id]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete menu item', details: error.message });
+    }
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -565,6 +708,10 @@ app.get('/admin', (req, res) => {
 
 app.get('/qr-generator', (req, res) => {
     res.sendFile(__dirname + '/qr-generator.html');
+});
+
+app.get('/menu-admin', (req, res) => {
+    res.sendFile(__dirname + '/menu-admin.html');
 });
 
 // Initialize and start server

@@ -90,6 +90,27 @@ class APIClient {
         }
     }
 
+    // Menu
+    async getMenu() {
+        return this.request('/api/menu');
+    }
+
+    async addMenuItem(data) {
+        return this.request('/api/menu', { method: 'POST', body: JSON.stringify(data) });
+    }
+
+    async updateMenuItem(id, data) {
+        return this.request(`/api/menu/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    }
+
+    async toggleMenuAvailability(id, is_available) {
+        return this.request(`/api/menu/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ is_available }) });
+    }
+
+    async deleteMenuItem(id) {
+        return this.request(`/api/menu/${id}`, { method: 'DELETE' });
+    }
+
     // Orders
     async getOrders(status = 'all', date = null) {
         let url = `/api/orders?status=${status}`;

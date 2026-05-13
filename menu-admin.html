@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메뉴 관리</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="menu-admin-styles.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="header-top">
+                <h1>🍽️ 메뉴 관리</h1>
+                <a href="/admin" class="back-btn">← 주문 관리로</a>
+            </div>
+        </header>
+
+        <!-- 새 메뉴 추가 -->
+        <section class="add-menu-section">
+            <h2>새 메뉴 추가</h2>
+            <form class="add-menu-form" id="addMenuForm">
+                <input type="text" id="newName" placeholder="메뉴 이름" required />
+                <input type="text" id="newCategory" list="categoryList" placeholder="카테고리" required />
+                <datalist id="categoryList"></datalist>
+                <input type="number" id="newPrice" placeholder="가격 (원)" min="0" step="100" required />
+                <button type="submit" class="btn-add-menu">+ 추가</button>
+            </form>
+        </section>
+
+        <!-- 메뉴 목록 -->
+        <section class="menu-list-section">
+            <div class="menu-list-header">
+                <h2>메뉴 목록</h2>
+                <span class="menu-total-count" id="menuTotalCount">0개</span>
+            </div>
+            <div id="menuList">
+                <div class="menu-loading">메뉴를 불러오는 중...</div>
+            </div>
+        </section>
+
+        <!-- 수정 모달 -->
+        <div class="modal" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>메뉴 수정</h2>
+                    <button class="close-btn" id="closeEditModal">&times;</button>
+                </div>
+                <div class="edit-form-wrap">
+                    <input type="hidden" id="editId" />
+                    <div class="edit-field">
+                        <label>메뉴 이름</label>
+                        <input type="text" id="editName" />
+                    </div>
+                    <div class="edit-field">
+                        <label>카테고리</label>
+                        <input type="text" id="editCategory" list="categoryList" />
+                    </div>
+                    <div class="edit-field">
+                        <label>가격 (원)</label>
+                        <input type="number" id="editPrice" min="0" step="100" />
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary" id="closeEditModal2">취소</button>
+                        <button class="btn btn-primary" id="saveEditBtn">저장</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/api-client.js"></script>
+    <script src="/menu-admin-script.js"></script>
+</body>
+</html>

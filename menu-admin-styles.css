@@ -1,0 +1,262 @@
+.back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* 추가 폼 */
+.add-menu-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.add-menu-section h2 {
+    color: #333;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+.add-menu-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.add-menu-form input {
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+.add-menu-form input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+#newName     { flex: 2; min-width: 140px; }
+#newCategory { flex: 1.5; min-width: 120px; }
+#newPrice    { flex: 1; min-width: 110px; }
+.btn-add-menu {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+.btn-add-menu:hover { opacity: 0.85; }
+
+/* 목록 섹션 */
+.menu-list-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.menu-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.menu-list-header h2 { color: #333; font-size: 1.3em; }
+.menu-total-count {
+    background: #667eea;
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.95em;
+    font-weight: 600;
+}
+
+/* 카테고리 그룹 */
+.menu-category-group {
+    margin-bottom: 25px;
+}
+.menu-category-title {
+    font-size: 1.05em;
+    font-weight: 700;
+    color: #555;
+    background: #f5f5f5;
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.category-item-count {
+    font-size: 0.85em;
+    color: #999;
+    font-weight: 400;
+}
+
+/* 메뉴 아이템 행 */
+.menu-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+}
+.menu-row:hover { background: #fafafa; }
+.menu-row:last-child { border-bottom: none; }
+
+.menu-row-name {
+    flex: 2;
+    font-weight: 600;
+    color: #333;
+    font-size: 1em;
+}
+.menu-row-price {
+    flex: 1;
+    color: #667eea;
+    font-weight: 700;
+    font-size: 1em;
+    text-align: right;
+}
+.menu-row-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* 판매중 토글 */
+.availability-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+}
+.availability-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    border-radius: 24px;
+    transition: background 0.2s;
+}
+.toggle-slider:before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+.availability-toggle input:checked + .toggle-slider { background: #2ed573; }
+.availability-toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+.row-unavailable .menu-row-name { color: #bbb; text-decoration: line-through; }
+.row-unavailable .menu-row-price { color: #ccc; }
+
+/* 수정/삭제 버튼 */
+.btn-row-edit {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.btn-row-edit:hover { opacity: 0.8; }
+.btn-row-delete {
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.btn-row-delete:hover { opacity: 0.8; }
+
+/* 수정 모달 */
+.edit-form-wrap { padding: 20px; }
+.edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+.edit-field label {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #555;
+}
+.edit-field input {
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+.edit-field input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.btn-primary:hover { opacity: 0.85; }
+
+/* 메뉴관리 버튼 (admin.html 헤더) */
+.menu-manage-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.menu-manage-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+@media (max-width: 768px) {
+    .add-menu-form { flex-direction: column; }
+    .add-menu-form input, .btn-add-menu { width: 100%; }
+    .menu-row { flex-wrap: wrap; gap: 8px; }
+    .menu-row-price { flex: none; }
+}
