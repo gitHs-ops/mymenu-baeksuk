@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 관리 - 업주용</title>
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-top">
+                <h1>🏪 주문 관리 시스템</h1>
+                <div class="date-picker-bar">
+                    <button class="date-nav-btn" id="prevDay">◀</button>
+                    <span class="calendar-icon">📅</span>
+                    <input type="date" id="dateFilter" />
+                    <button class="date-nav-btn" id="nextDay">▶</button>
+                    <button class="date-today-btn" id="todayBtn">오늘</button>
+                </div>
+            </div>
+            <div class="header-info">
+                <span class="current-time" id="currentTime"></span>
+                <span class="order-count">대기 주문: <span id="pendingCount">0</span></span>
+            </div>
+        </header>
+
+        <!-- Stats Dashboard -->
+        <section class="stats-dashboard">
+            <div class="stat-card highlight full-width">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <div class="stat-label">총 매출</div>
+                    <div class="stat-value" id="totalRevenue">0원</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Stats -->
+        <section class="order-stats">
+            <div class="stat-card compact">
+                <div class="stat-icon">📋</div>
+                <div class="stat-info">
+                    <div class="stat-label">전체</div>
+                    <div class="stat-value" id="totalOrders">0</div>
+                </div>
+            </div>
+            <div class="stat-card compact">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-info">
+                    <div class="stat-label">대기중</div>
+                    <div class="stat-value" id="pendingOrders">0</div>
+                </div>
+            </div>
+            <div class="stat-card compact">
+                <div class="stat-icon">🍳</div>
+                <div class="stat-info">
+                    <div class="stat-label">조리중</div>
+                    <div class="stat-value" id="cookingOrders">0</div>
+                </div>
+            </div>
+            <div class="stat-card compact">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <div class="stat-label">완료</div>
+                    <div class="stat-value" id="completedOrders">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="tab-btn active" data-status="all">전체</button>
+            <button class="tab-btn" data-status="pending">대기중</button>
+            <button class="tab-btn" data-status="cooking">조리중</button>
+            <button class="tab-btn" data-status="completed">완료</button>
+        </div>
+
+        <!-- Staff Calls Section -->
+        <section class="staff-calls-section">
+            <div class="section-header">
+                <h2>🔔 직원 호출</h2>
+                <span class="call-count" id="callCount">0</span>
+            </div>
+            <div class="staff-calls-list" id="staffCallsList">
+                <div class="empty-state">
+                    <p>호출이 없습니다</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders List -->
+        <section class="orders-section">
+            <div class="orders-header">
+                <h2>주문 목록</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="clearCompletedBtn">완료 주문 삭제</button>
+                    <button class="btn btn-danger" id="clearAllBtn">전체 삭제</button>
+                </div>
+            </div>
+            <div class="orders-list" id="ordersList">
+                <div class="empty-state">
+                    <p>📭 주문이 없습니다</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Detail Modal -->
+        <div class="modal" id="orderDetailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>주문 상세</h2>
+                    <button class="close-btn" id="closeDetailModal">&times;</button>
+                </div>
+                <div class="order-detail-content" id="orderDetailContent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Sound Toggle -->
+        <button class="sound-toggle" id="soundToggle" title="알림음 켜기/끄기">
+            🔔
+        </button>
+    </div>
+
+    <script src="/api-client.js"></script>
+    <script src="/admin-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>식당 주문 - 테이블 QR 오더</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🍜 메뉴판</h1>
+            <div class="table-info">테이블 번호: <span id="tableNumber">1</span></div>
+            <button class="history-btn" id="historyButton">📋 주문내역 보기</button>
+        </header>
+
+        <!-- Category Navigation -->
+        <nav class="category-nav">
+            <button class="category-btn active" data-category="all">전체</button>
+            <button class="category-btn" data-category="탕수육">🥘 탕수육</button>
+            <button class="category-btn" data-category="요리">🍲 요리</button>
+            <button class="category-btn" data-category="면">🍜 면</button>
+            <button class="category-btn" data-category="밥">🍚 밥</button>
+            <button class="category-btn" data-category="1인세트">🎁 1인세트</button>
+            <button class="category-btn" data-category="2인세트">🎁 2인세트</button>
+            <button class="category-btn" data-category="계절">🌸 계절</button>
+            <button class="category-btn" data-category="주류">🍺 주류</button>
+            <button class="staff-call-btn" id="staffCallBtn">🔔 직원호출</button>
+        </nav>
+
+        <!-- Menu Categories -->
+        <div class="menu-container">
+            <!-- 탕수육 Section -->
+            <section class="menu-section" data-category="탕수육">
+                <h2 class="section-title">🥘 탕수육</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="탕수육 미니" data-price="15000">
+                        <div class="item-info">
+                            <div class="item-name">탕수육 미니</div>
+                            <div class="item-price">15,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="탕수육 (소)" data-price="20000">
+                        <div class="item-info">
+                            <div class="item-name">탕수육 (소)</div>
+                            <div class="item-price">20,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="탕수육 (중)" data-price="25000">
+                        <div class="item-info">
+                            <div class="item-name">탕수육 (중)</div>
+                            <div class="item-price">25,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="탕수육 (대)" data-price="30000">
+                        <div class="item-info">
+                            <div class="item-name">탕수육 (대)</div>
+                            <div class="item-price">30,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 요리 Section -->
+            <section class="menu-section" data-category="요리">
+                <h2 class="section-title">🍲 요리</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="양장피" data-price="50000">
+                        <div class="item-info">
+                            <div class="item-name">양장피</div>
+                            <div class="item-price">50,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="팔보채" data-price="50000">
+                        <div class="item-info">
+                            <div class="item-name">팔보채</div>
+                            <div class="item-price">50,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="깐풍육" data-price="40000">
+                        <div class="item-info">
+                            <div class="item-name">깐풍육</div>
+                            <div class="item-price">40,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="라조육" data-price="40000">
+                        <div class="item-info">
+                            <div class="item-name">라조육</div>
+                            <div class="item-price">40,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="쟁반짜장" data-price="24000">
+                        <div class="item-info">
+                            <div class="item-name">쟁반짜장</div>
+                            <div class="item-price">24,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="쟁반짬뽕" data-price="26000">
+                        <div class="item-info">
+                            <div class="item-name">쟁반짬뽕</div>
+                            <div class="item-price">26,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짬짜면" data-price="10000">
+                        <div class="item-info">
+                            <div class="item-name">짬짜면</div>
+                            <div class="item-price">10,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="군만두" data-price="6000">
+                        <div class="item-info">
+                            <div class="item-name">군만두</div>
+                            <div class="item-price">6,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 면 Section -->
+            <section class="menu-section" data-category="면">
+                <h2 class="section-title">🍜 면</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="짜장면" data-price="7000">
+                        <div class="item-info">
+                            <div class="item-name">짜장면</div>
+                            <div class="item-price">7,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짬뽕" data-price="9000">
+                        <div class="item-info">
+                            <div class="item-name">짬뽕</div>
+                            <div class="item-price">9,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="간짜장" data-price="9000">
+                        <div class="item-info">
+                            <div class="item-name">간짜장</div>
+                            <div class="item-price">9,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="우동" data-price="9000">
+                        <div class="item-info">
+                            <div class="item-name">우동</div>
+                            <div class="item-price">9,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="울면" data-price="10000">
+                        <div class="item-info">
+                            <div class="item-name">울면</div>
+                            <div class="item-price">10,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="야끼우동" data-price="11000">
+                        <div class="item-info">
+                            <div class="item-name">야끼우동</div>
+                            <div class="item-price">11,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="삼선면" data-price="13000">
+                        <div class="item-info">
+                            <div class="item-name">삼선면</div>
+                            <div class="item-price">13,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 밥 Section -->
+            <section class="menu-section" data-category="밥">
+                <h2 class="section-title">🍚 밥</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="볶음밥" data-price="9000">
+                        <div class="item-info">
+                            <div class="item-name">볶음밥</div>
+                            <div class="item-price">9,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짬뽕밥" data-price="10000">
+                        <div class="item-info">
+                            <div class="item-name">짬뽕밥</div>
+                            <div class="item-price">10,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="잡채밥" data-price="10000">
+                        <div class="item-info">
+                            <div class="item-name">잡채밥</div>
+                            <div class="item-price">10,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="중화비빔밥" data-price="11000">
+                        <div class="item-info">
+                            <div class="item-name">중화비빔밥</div>
+                            <div class="item-price">11,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="야끼밥" data-price="11000">
+                        <div class="item-info">
+                            <div class="item-name">야끼밥</div>
+                            <div class="item-price">11,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짜장밥" data-price="8000">
+                        <div class="item-info">
+                            <div class="item-name">짜장밥</div>
+                            <div class="item-price">8,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1인 세트 메뉴 Section -->
+            <section class="menu-section" data-category="1인세트">
+                <h2 class="section-title">🎁 1인 세트</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="간1+탕수육" data-price="19000">
+                        <div class="item-info">
+                            <div class="item-name">간1+탕수육</div>
+                            <div class="item-price">19,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짬1+탕수육" data-price="19000">
+                        <div class="item-info">
+                            <div class="item-name">짬1+탕수육</div>
+                            <div class="item-price">19,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짜1+탕수육" data-price="17000">
+                        <div class="item-info">
+                            <div class="item-name">짜1+탕수육</div>
+                            <div class="item-price">17,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="볶1+탕수육" data-price="19000">
+                        <div class="item-info">
+                            <div class="item-name">볶1+탕수육</div>
+                            <div class="item-price">19,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2인 세트 메뉴 Section -->
+            <section class="menu-section" data-category="2인세트">
+                <h2 class="section-title">🎁 2인 세트</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="짜2+탕수육" data-price="24000">
+                        <div class="item-info">
+                            <div class="item-name">짜2+탕수육</div>
+                            <div class="item-price">24,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짜+짬+탕수육" data-price="25000">
+                        <div class="item-info">
+                            <div class="item-name">짜+짬+탕수육</div>
+                            <div class="item-price">25,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="짬2+탕수육" data-price="28000">
+                        <div class="item-info">
+                            <div class="item-name">짬2+탕수육</div>
+                            <div class="item-price">28,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="간2+탕수육" data-price="28000">
+                        <div class="item-info">
+                            <div class="item-name">간2+탕수육</div>
+                            <div class="item-price">28,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="볶2+탕수육" data-price="28000">
+                        <div class="item-info">
+                            <div class="item-name">볶2+탕수육</div>
+                            <div class="item-price">28,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 계절 메뉴 Section -->
+            <section class="menu-section" data-category="계절">
+                <h2 class="section-title">🌸 계절 메뉴</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="콩국수" data-price="8000">
+                        <div class="item-info">
+                            <div class="item-name">콩국수</div>
+                            <div class="item-price">8,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="밀면" data-price="8000">
+                        <div class="item-info">
+                            <div class="item-name">밀면</div>
+                            <div class="item-price">8,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 주류 Section -->
+            <section class="menu-section" data-category="주류">
+                <h2 class="section-title">🍺 주류</h2>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="소주" data-price="4000">
+                        <div class="item-info">
+                            <div class="item-name">소주</div>
+                            <div class="item-price">4,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="맥주" data-price="4000">
+                        <div class="item-info">
+                            <div class="item-name">맥주</div>
+                            <div class="item-price">4,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="고량주" data-price="6000">
+                        <div class="item-info">
+                            <div class="item-name">고량주</div>
+                            <div class="item-price">6,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="이과두주" data-price="5000">
+                        <div class="item-info">
+                            <div class="item-name">이과두주</div>
+                            <div class="item-price">5,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                    <div class="menu-item" data-name="음료수" data-price="2000">
+                        <div class="item-info">
+                            <div class="item-name">음료수</div>
+                            <div class="item-price">2,000원</div>
+                        </div>
+                        <button class="add-btn">담기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Cart Button -->
+        <button class="cart-button" id="cartButton">
+            🛒 장바구니 (<span id="cartCount">0</span>)
+        </button>
+
+        <!-- Cart Modal -->
+        <div class="modal" id="cartModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🛒 주문 내역</h2>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+                <div class="cart-items" id="cartItems">
+                    <p class="empty-cart">장바구니가 비어있습니다</p>
+                </div>
+                <div class="cart-summary">
+                    <div class="total-row">
+                        <span>총 금액:</span>
+                        <span class="total-price" id="totalPrice">0원</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="clearCart">전체 삭제</button>
+                    <button class="btn btn-primary" id="orderButton">주문하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Confirmation Modal -->
+        <div class="modal" id="confirmModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>✅ 주문 완료</h2>
+                </div>
+                <div class="confirm-message">
+                    <p>주문이 접수되었습니다!</p>
+                    <p>잠시만 기다려 주세요.</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="closeConfirm">확인</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order History Modal -->
+        <div class="modal" id="historyModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📋 테이블 <span id="historyTableNumber"></span> 주문내역</h2>
+                    <button class="close-btn" id="closeHistory">&times;</button>
+                </div>
+                <div class="history-items" id="historyItems">
+                    <p class="empty-history">주문 내역이 없습니다</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Call Modal -->
+        <div class="modal" id="staffCallModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🔔 직원 호출</h2>
+                    <button class="close-btn" id="closeStaffCall">&times;</button>
+                </div>
+                <div class="staff-call-options">
+                    <button class="staff-call-option" data-message="물 좀 주세요">
+                        💧 물 좀 주세요
+                    </button>
+                    <button class="staff-call-option" data-message="물수건 갖다주세요">
+                        🧻 물수건 갖다주세요
+                    </button>
+                    <button class="staff-call-option" data-message="직접 와주세요">
+                        👋 직접 와주세요
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Call Confirmation Modal -->
+        <div class="modal" id="staffCallConfirmModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>✅ 호출 완료</h2>
+                </div>
+                <div class="confirm-message">
+                    <p>직원을 호출했습니다!</p>
+                    <p>잠시만 기다려 주세요.</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="closeStaffCallConfirm">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/api-client.js"></script>
+    <script src="/script.js"></script>
+</body>
+</html>

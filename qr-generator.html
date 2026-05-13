@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 생성기 - 테이블용</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .qr-display {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-info {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+
+            .input-section, .button-group, .instructions {
+                display: none;
+            }
+
+            .qr-display {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍜 테이블 QR 코드 생성기</h1>
+
+        <div class="input-section">
+            <label for="tableNumber">테이블 번호:</label>
+            <input type="number" id="tableNumber" min="1" max="100" value="1" placeholder="테이블 번호를 입력하세요">
+        </div>
+
+        <div class="input-section">
+            <label for="urlInput">주문 페이지 URL:</label>
+            <input type="text" id="urlInput" placeholder="예: https://yourrestaurant.com/order" value="">
+        </div>
+
+        <div class="button-group">
+            <button class="btn-generate" onclick="generateQR()">QR 코드 생성</button>
+            <button class="btn-download" id="downloadBtn" onclick="downloadQR()" disabled>다운로드</button>
+            <button class="btn-print" onclick="printQR()">인쇄</button>
+        </div>
+
+        <div class="qr-display" id="qrDisplay" style="display: none;">
+            <div id="qrcode"></div>
+            <div class="table-info" id="tableInfo"></div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 사용 방법</h3>
+            <ol>
+                <li><strong>테이블 번호</strong>를 입력하세요 (1-100)</li>
+                <li><strong>주문 페이지 URL</strong>을 입력하세요 (비워두면 로컬 파일 경로 사용)</li>
+                <li><strong>"QR 코드 생성"</strong> 버튼을 클릭하세요</li>
+                <li>생성된 QR 코드를 <strong>다운로드</strong>하거나 <strong>인쇄</strong>하세요</li>
+                <li>각 테이블에 QR 코드를 부착하세요</li>
+            </ol>
+            <p style="margin-top: 15px; color: #666;">
+                💡 <strong>팁:</strong> 실제 서비스에서는 웹 서버에 업로드한 후 해당 URL을 사용하세요.
+                로컬 테스트 시에는 URL을 비워두고 생성하면 됩니다.
+            </p>
+        </div>
+    </div>
+
+    <!-- QRCode.js 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script>
+        let qrCodeInstance = null;
+
+        // 페이지 로드 시 현재 위치 기반 URL 설정
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.href.replace('qr-generator.html', 'index.html');
+            document.getElementById('urlInput').value = currentPath;
+        });
+
+        function generateQR() {
+            const tableNumber = document.getElementById('tableNumber').value;
+            const baseUrl = document.getElementById('urlInput').value.trim();
+
+            if (!tableNumber || tableNumber < 1 || tableNumber > 100) {
+                alert('올바른 테이블 번호를 입력하세요 (1-100)');
+                return;
+            }
+
+            // URL 생성 (테이블 번호를 쿼리 파라미터로 추가)
+            let qrUrl = baseUrl || window.location.href.replace('qr-generator.html', 'index.html');
+            qrUrl += (qrUrl.includes('?') ? '&' : '?') + 'table=' + tableNumber;
+
+            // 기존 QR 코드 제거
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+
+            // 새 QR 코드 생성
+            qrCodeInstance = new QRCode(qrcodeDiv, {
+                text: qrUrl,
+                width: 256,
+                height: 256,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // 테이블 정보 표시
+            document.getElementById('tableInfo').textContent = `테이블 ${tableNumber}번`;
+            document.getElementById('qrDisplay').style.display = 'block';
+            document.getElementById('downloadBtn').disabled = false;
+        }
+
+        function downloadQR() {
+            const tableNumber = document.getElementById('tableNumber').value;
+            const canvas = document.querySelector('#qrcode canvas');
+            
+            if (!canvas) {
+                alert('먼저 QR 코드를 생성하세요!');
+                return;
+            }
+
+            // Canvas를 이미지로 변환하여 다운로드
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `table-${tableNumber}-qr.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function printQR() {
+            if (!qrCodeInstance) {
+                alert('먼저 QR 코드를 생성하세요!');
+                return;
+            }
+            window.print();
+        }
+
+        // Enter 키로 생성
+        document.getElementById('tableNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+</html>
