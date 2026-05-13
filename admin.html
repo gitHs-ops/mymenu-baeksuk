@@ -40,28 +40,28 @@
 
         <!-- Order Stats -->
         <section class="order-stats">
-            <div class="stat-card compact">
+            <div class="stat-card compact stat-filter active" data-status="all">
                 <div class="stat-icon">📋</div>
                 <div class="stat-info">
                     <div class="stat-label">전체</div>
                     <div class="stat-value" id="totalOrders">0</div>
                 </div>
             </div>
-            <div class="stat-card compact">
+            <div class="stat-card compact stat-filter" data-status="pending">
                 <div class="stat-icon">⏳</div>
                 <div class="stat-info">
                     <div class="stat-label">대기중</div>
                     <div class="stat-value" id="pendingOrders">0</div>
                 </div>
             </div>
-            <div class="stat-card compact">
+            <div class="stat-card compact stat-filter" data-status="cooking">
                 <div class="stat-icon">🍳</div>
                 <div class="stat-info">
                     <div class="stat-label">조리중</div>
                     <div class="stat-value" id="cookingOrders">0</div>
                 </div>
             </div>
-            <div class="stat-card compact">
+            <div class="stat-card compact stat-filter" data-status="completed">
                 <div class="stat-icon">✅</div>
                 <div class="stat-info">
                     <div class="stat-label">완료</div>
@@ -69,14 +69,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Filter Tabs -->
-        <div class="filter-tabs">
-            <button class="tab-btn active" data-status="all">전체</button>
-            <button class="tab-btn" data-status="pending">대기중</button>
-            <button class="tab-btn" data-status="cooking">조리중</button>
-            <button class="tab-btn" data-status="completed">완료</button>
-        </div>
 
         <!-- Orders List -->
         <section class="orders-section">

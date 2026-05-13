@@ -175,6 +175,24 @@ body {
     padding: 10px 15px;
 }
 
+.stat-filter {
+    cursor: pointer;
+}
+
+.stat-filter.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-filter.active .stat-label {
+    opacity: 0.9;
+    color: white;
+}
+
+.stat-filter.active .stat-value {
+    color: white;
+}
+
 .stat-card.compact .stat-icon {
     font-size: 1.5em;
 }

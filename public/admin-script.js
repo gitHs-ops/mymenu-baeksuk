@@ -16,7 +16,7 @@ const totalRevenueEl = document.getElementById('totalRevenue');
 const ordersListEl = document.getElementById('ordersList');
 const staffCallsListEl = document.getElementById('staffCallsList');
 const callCountEl = document.getElementById('callCount');
-const tabButtons = document.querySelectorAll('.tab-btn');
+const statFilters = document.querySelectorAll('.stat-filter');
 const callCountHeaderEl = document.getElementById('callCountHeader');
 const orderDetailModal = document.getElementById('orderDetailModal');
 const closeDetailModal = document.getElementById('closeDetailModal');
@@ -68,12 +68,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Connect WebSocket for real-time updates
     apiClient.connectWebSocket(handleWebSocketMessage);
 
-    // Tab buttons
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.status;
+    // Stat card filter
+    statFilters.forEach(card => {
+        card.addEventListener('click', () => {
+            statFilters.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            currentFilter = card.dataset.status;
             renderOrders();
         });
     });
