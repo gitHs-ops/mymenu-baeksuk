@@ -1,6 +1,6 @@
 .back-btn {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--surface);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-main);
     padding: 8px 16px;
     border-radius: 10px;
@@ -24,10 +24,10 @@
     padding: 24px;
     margin-bottom: 24px;
     box-shadow: var(--shadow-md);
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .add-menu-section h2 {
-    color: #333;
+    color: var(--text-main);
     font-size: 1.2em;
     margin-bottom: 15px;
 }
@@ -40,18 +40,19 @@
 .add-menu-form input,
 .add-menu-form select {
     padding: 10px 14px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     font-size: 0.95em;
     font-family: inherit;
     transition: all 0.2s;
-    background: #f8fafc;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
 }
 .add-menu-form input:focus,
 .add-menu-form select:focus {
     outline: none;
-    border-color: var(--primary-light);
-    background: white;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.1);
 }
 #newCategory { flex: 1.5; min-width: 120px; }
 #newName     { flex: 2; min-width: 140px; }
@@ -106,7 +107,7 @@
     font-size: 1em;
     font-weight: 700;
     color: var(--text-main);
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.05);
     padding: 10px 16px;
     border-radius: 8px;
     margin-bottom: 8px;
@@ -187,9 +188,9 @@
 
 /* 수정/삭제 버튼 */
 .btn-row-edit {
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-main);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 0.85em;
@@ -201,7 +202,7 @@
     gap: 4px;
 }
 .btn-row-edit:hover {
-    background: #e2e8f0;
+    background: rgba(255, 255, 255, 0.1);
 }
 .btn-row-delete {
     background: transparent;
