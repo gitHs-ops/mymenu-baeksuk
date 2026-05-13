@@ -284,6 +284,8 @@ function renderOrders() {
         const orderCard = createOrderCard(order);
         ordersListEl.appendChild(orderCard);
     });
+    
+    lucide.createIcons();
 }
 
 // Create order card
@@ -317,16 +319,16 @@ function createOrderCard(order) {
     let actionsHTML = '';
     if (order.status === 'pending') {
         actionsHTML = `
-            <button class="action-btn btn-accept" onclick="acceptOrder('${order.id}')">접수</button>
-            <button class="action-btn btn-cancel" onclick="cancelOrder('${order.id}')">취소</button>
+            <button class="action-btn btn-accept" onclick="acceptOrder('${order.id}')"><i data-lucide="check"></i> 접수</button>
+            <button class="action-btn btn-cancel" onclick="cancelOrder('${order.id}')"><i data-lucide="x"></i> 취소</button>
         `;
     } else if (order.status === 'cooking') {
         actionsHTML = `
-            <button class="action-btn btn-complete" onclick="completeOrder('${order.id}')">완료</button>
+            <button class="action-btn btn-complete" onclick="completeOrder('${order.id}')"><i data-lucide="check-circle"></i> 완료</button>
         `;
     }
-    actionsHTML += `<button class="action-btn btn-view" onclick="viewOrderDetail('${order.id}')">상세</button>`;
-    actionsHTML += `<button class="action-btn btn-delete" onclick="deleteOrder('${order.id}')">🗑️</button>`;
+    actionsHTML += `<button class="action-btn btn-view" onclick="viewOrderDetail('${order.id}')"><i data-lucide="eye"></i> 상세</button>`;
+    actionsHTML += `<button class="action-btn btn-delete" onclick="deleteOrder('${order.id}')"><i data-lucide="trash-2"></i></button>`;
 
     card.innerHTML = `
         <div class="order-header">
@@ -506,17 +508,19 @@ function renderStaffCalls() {
         callDiv.className = 'staff-call-card';
         callDiv.innerHTML = `
             <div class="call-header">
-                <div class="call-table">테이블 ${call.table_number}</div>
+                <div class="call-table"><i data-lucide="hash"></i> 테이블 ${call.table_number}</div>
                 <div class="call-time">${callTime}</div>
             </div>
             <div class="call-message">${call.message}</div>
             <button class="btn btn-complete" onclick="completeStaffCall('${call.id}')">
-                ✅ 완료
+                <i data-lucide="check-circle"></i> 완료
             </button>
         `;
 
         staffCallsListEl.appendChild(callDiv);
     });
+
+    lucide.createIcons();
 }
 
 // Complete staff call

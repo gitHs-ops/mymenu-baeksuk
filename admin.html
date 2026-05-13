@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주문 관리 - 업주용</title>
     <link rel="stylesheet" href="admin-styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="admin-container">
@@ -13,26 +14,32 @@
             <div class="header-top">
                 <h1>🏪 주문 관리 시스템</h1>
                 <div class="date-picker-bar">
-                    <button class="date-nav-btn" id="prevDay">◀</button>
+                    <button class="date-nav-btn" id="prevDay"><i data-lucide="chevron-left"></i></button>
                     <input type="date" id="dateFilter" />
-                    <button class="date-nav-btn" id="nextDay">▶</button>
+                    <button class="date-nav-btn" id="nextDay"><i data-lucide="chevron-right"></i></button>
                     <button class="date-today-btn" id="todayBtn">오늘</button>
                 </div>
             </div>
             <div class="header-info">
                 <span class="current-time" id="currentTime"></span>
-                <button class="pending-toggle active" id="pendingToggle">대기 <span id="pendingCount">0</span></button>
-                <button class="staff-call-toggle" id="staffCallToggle">🔔 직원 호출 <span id="callCountHeader">0</span></button>
-                <a href="/menu-admin" class="menu-manage-btn">🍽️ 메뉴관리</a>
+                <button class="pending-toggle active" id="pendingToggle">
+                    <i data-lucide="clock"></i> 대기 <span id="pendingCount">0</span>
+                </button>
+                <button class="staff-call-toggle" id="staffCallToggle">
+                    <i data-lucide="bell"></i> 호출 <span id="callCountHeader">0</span>
+                </button>
+                <a href="/menu-admin" class="menu-manage-btn">
+                    <i data-lucide="utensils"></i> 메뉴관리
+                </a>
             </div>
         </header>
 
         <!-- Stats Dashboard -->
         <section class="stats-dashboard">
             <div class="stat-card highlight full-width">
-                <div class="stat-icon">💰</div>
+                <div class="stat-icon"><i data-lucide="banknote"></i></div>
                 <div class="stat-info">
-                    <div class="stat-label">총 매출</div>
+                    <div class="stat-label">오늘 총 매출</div>
                     <div class="stat-value" id="totalRevenue">0원</div>
                 </div>
             </div>
@@ -41,28 +48,28 @@
         <!-- Order Stats -->
         <section class="order-stats">
             <div class="stat-card compact stat-filter active" data-status="all">
-                <div class="stat-icon">📋</div>
+                <div class="stat-icon"><i data-lucide="list"></i></div>
                 <div class="stat-info">
                     <div class="stat-label">전체</div>
                     <div class="stat-value" id="totalOrders">0</div>
                 </div>
             </div>
             <div class="stat-card compact stat-filter" data-status="pending">
-                <div class="stat-icon">⏳</div>
+                <div class="stat-icon"><i data-lucide="timer"></i></div>
                 <div class="stat-info">
                     <div class="stat-label">대기중</div>
                     <div class="stat-value" id="pendingOrders">0</div>
                 </div>
             </div>
             <div class="stat-card compact stat-filter" data-status="cooking">
-                <div class="stat-icon">🍳</div>
+                <div class="stat-icon"><i data-lucide="flame"></i></div>
                 <div class="stat-info">
                     <div class="stat-label">조리중</div>
                     <div class="stat-value" id="cookingOrders">0</div>
                 </div>
             </div>
             <div class="stat-card compact stat-filter" data-status="completed">
-                <div class="stat-icon">✅</div>
+                <div class="stat-icon"><i data-lucide="check-circle"></i></div>
                 <div class="stat-info">
                     <div class="stat-label">완료</div>
                     <div class="stat-value" id="completedOrders">0</div>
@@ -115,5 +122,8 @@
 
     <script src="/api-client.js"></script>
     <script src="/admin-script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

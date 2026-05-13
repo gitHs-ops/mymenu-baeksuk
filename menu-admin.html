@@ -6,13 +6,14 @@
     <title>메뉴 관리</title>
     <link rel="stylesheet" href="admin-styles.css">
     <link rel="stylesheet" href="menu-admin-styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="admin-container">
         <header class="admin-header">
             <div class="header-top">
                 <h1>🍽️ 메뉴 관리</h1>
-                <a href="/admin" class="back-btn">← 주문 관리로</a>
+                <a href="/admin" class="back-btn"><i data-lucide="arrow-left"></i> 주문 관리로</a>
             </div>
         </header>
 
@@ -72,5 +73,8 @@
 
     <script src="/api-client.js"></script>
     <script src="/menu-admin-script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

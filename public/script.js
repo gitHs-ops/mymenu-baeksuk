@@ -167,12 +167,11 @@ function renderMenu(items, menuContainer, categoryNav) {
     categoryNav.querySelectorAll('.category-btn:not([data-category="all"])').forEach(b => b.remove());
 
     Object.keys(categories).forEach(cat => {
-        const icon = CATEGORY_ICONS[cat] || '🍽️';
         const btn = document.createElement('button');
         btn.className = 'category-btn';
         btn.setAttribute('data-category', cat);
         btn.setAttribute('onclick', `filterByCategory(this.getAttribute('data-category'))`);
-        btn.textContent = `${icon} ${cat}`;
+        btn.textContent = cat;
         categoryNav.insertBefore(btn, staffCallBtn);
     });
 
@@ -195,7 +194,7 @@ function renderMenu(items, menuContainer, categoryNav) {
         `).join('');
 
         section.innerHTML = `
-            <h2 class="section-title">${icon} ${cat}</h2>
+            <h2 class="section-title">${cat}</h2>
             <div class="menu-grid">${itemsHTML}</div>
         `;
         menuContainer.appendChild(section);
@@ -227,13 +226,16 @@ function handleAddToCart(e) {
     }
 
     // Add animation to button
-    e.target.textContent = '✓ 담김';
-    e.target.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+    const originalContent = e.target.innerHTML;
+    e.target.innerHTML = '<i data-lucide="check"></i> 담김';
+    e.target.classList.add('added');
+    lucide.createIcons();
     
     setTimeout(() => {
-        e.target.textContent = '담기';
-        e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-    }, 500);
+        e.target.innerHTML = originalContent;
+        e.target.classList.remove('added');
+        lucide.createIcons();
+    }, 800);
 
     updateCart();
     saveCart();

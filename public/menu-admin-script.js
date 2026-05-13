@@ -7,11 +7,6 @@ const newCategoryEl = document.getElementById('newCategory');
 const editCategoryEl = document.getElementById('editCategory');
 const editModal = document.getElementById('editModal');
 
-const CATEGORY_ICONS = {
-    '탕수육': '🥘', '요리': '🍲', '면': '🍜', '밥': '🍚',
-    '1인세트': '🎁', '2인세트': '🎁', '계절': '🌸', '주류': '🍺',
-};
-
 document.addEventListener('DOMContentLoaded', async () => {
     await loadMenu();
 
@@ -28,7 +23,7 @@ async function loadMenu() {
         menuItems = await apiClient.getAllMenu();
         renderMenuList();
     } catch (e) {
-        menuListEl.innerHTML = '<div class="menu-loading">메뉴를 불러오는데 실패했습니다</div>';
+        menuListEl.innerHTML = '<div class="menu-loading">메뉴를 불러오는 중 오류가 발생했습니다</div>';
     }
 }
 
@@ -55,12 +50,11 @@ function renderMenuList() {
 
     menuListEl.innerHTML = '';
     Object.entries(groups).forEach(([cat, items]) => {
-        const icon = CATEGORY_ICONS[cat] || '🍽️';
         const group = document.createElement('div');
         group.className = 'menu-category-group';
         group.innerHTML = `
             <div class="menu-category-title">
-                ${icon} ${cat}
+                ${cat}
                 <span class="category-item-count">${items.length}개</span>
             </div>
         `;
@@ -77,14 +71,18 @@ function renderMenuList() {
                             onchange="toggleAvailability(${item.id}, this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
-                    <button class="btn-row-edit" onclick="openEdit(${item.id})">수정</button>
-                    <button class="btn-row-delete" onclick="handleDelete(${item.id})">🗑️</button>
+                    <button class="btn-row-edit" onclick="openEdit(${item.id})"><i data-lucide="edit-3"></i></button>
+                    <button class="btn-row-delete" onclick="handleDelete(${item.id})"><i data-lucide="trash-2"></i></button>
                 </div>
             `;
             group.appendChild(row);
         });
         menuListEl.appendChild(group);
     });
+    
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
 // 추가

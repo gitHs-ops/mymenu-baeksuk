@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>식당 주문 - 테이블 QR 오더</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="container">
@@ -12,13 +13,17 @@
         <header class="header">
             <h1>🍜 메뉴판</h1>
             <div class="table-info">테이블 번호: <span id="tableNumber">1</span></div>
-            <button class="history-btn" id="historyButton">📋 주문내역 보기</button>
+            <button class="history-btn" id="historyButton">
+                <i data-lucide="clipboard-list"></i> 주문내역
+            </button>
         </header>
 
         <!-- Category Navigation (동적 렌더링) -->
         <nav class="category-nav" id="categoryNav">
             <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">전체</button>
-            <button class="staff-call-btn" id="staffCallBtn">🔔 직원호출</button>
+            <button class="staff-call-btn" id="staffCallBtn">
+                <i data-lucide="bell"></i> 호출
+            </button>
         </nav>
 
         <!-- Menu Container (동적 렌더링) -->
@@ -28,7 +33,7 @@
 
         <!-- Cart Button -->
         <button class="cart-button" id="cartButton">
-            🛒 장바구니 (<span id="cartCount">0</span>)
+            <i data-lucide="shopping-cart"></i> 장바구니 <span id="cartCount">0</span>
         </button>
 
         <!-- Cart Modal -->
@@ -123,5 +128,8 @@
 
     <script src="/api-client.js"></script>
     <script src="/script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
