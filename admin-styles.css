@@ -83,34 +83,39 @@ body {
 }
 
 .date-nav-btn {
-    background: rgba(255, 255, 255, 0.3);
-    border: none;
-    color: white;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: var(--text-main);
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9em;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .date-nav-btn:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: #f1f5f9;
+    border-color: var(--primary-light);
 }
 
 .date-today-btn {
-    background: rgba(255, 255, 255, 0.3);
-    border: none;
-    color: white;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: var(--text-main);
     padding: 6px 14px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9em;
-    font-weight: bold;
-    transition: background 0.2s;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
 .date-today-btn:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: #f1f5f9;
+    border-color: var(--primary-light);
 }
 
 .header-info {
