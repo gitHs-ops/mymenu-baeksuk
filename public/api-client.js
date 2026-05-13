@@ -165,6 +165,10 @@ class APIClient {
         return this.request(`/api/sales-stats?period=${period}`);
     }
 
+    async getHourlyStats(period = 'daily') {
+        return this.request(`/api/sales-stats/hourly?period=${period}`);
+    }
+
     // Staff calls
     async getStaffCalls() {
         return this.request('/api/staff-calls');

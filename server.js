@@ -680,6 +680,52 @@ app.get('/api/sales-stats', async (req, res) => {
     }
 });
 
+// Hourly peak-time analysis (KST hour-of-day)
+app.get('/api/sales-stats/hourly', async (req, res) => {
+    const period = (req.query.period || 'daily').toLowerCase();
+    const days = period === 'monthly' ? 365 : period === 'weekly' ? 84 : 30;
+
+    const empty = () => Array.from({ length: 24 }, (_, h) => ({ hour: h, count: 0, revenue: 0 }));
+
+    if (!USE_DATABASE) {
+        const cutoff = Date.now() - days * 86400000;
+        const buckets = empty();
+        memoryOrders.forEach(o => {
+            const t = new Date(o.created_at).getTime();
+            if (t < cutoff) return;
+            const kstHour = new Date(t + 9 * 3600 * 1000).getUTCHours();
+            buckets[kstHour].count += 1;
+            buckets[kstHour].revenue += parseFloat(o.total) || 0;
+        });
+        return res.json(buckets);
+    }
+
+    try {
+        const sql = `
+            SELECT HOUR(CONVERT_TZ(created_at, '+00:00', '+09:00')) AS hour,
+                   COUNT(*) AS count,
+                   COALESCE(SUM(total), 0) AS revenue
+            FROM orders
+            WHERE created_at >= UTC_TIMESTAMP() - INTERVAL ? DAY
+            GROUP BY hour
+            ORDER BY hour ASC
+        `;
+        const [rows] = await pool.query(sql, [days]);
+        const buckets = empty();
+        rows.forEach(r => {
+            buckets[Number(r.hour)] = {
+                hour: Number(r.hour),
+                count: Number(r.count),
+                revenue: Number(r.revenue)
+            };
+        });
+        res.json(buckets);
+    } catch (error) {
+        console.error('Error fetching hourly stats:', error);
+        res.status(500).json({ error: 'Failed to fetch hourly stats', details: error.message });
+    }
+});
+
 // Staff call endpoints
 app.get('/api/staff-calls', async (req, res) => {
     if (!USE_DATABASE) {
