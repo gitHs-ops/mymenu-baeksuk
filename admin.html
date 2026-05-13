@@ -23,6 +23,7 @@
             <div class="header-info">
                 <span class="current-time" id="currentTime"></span>
                 <span class="order-count">대기 주문: <span id="pendingCount">0</span></span>
+                <span class="order-count">직원 호출: <span id="callCountHeader">0</span></span>
             </div>
         </header>
 
@@ -77,6 +78,18 @@
             <button class="tab-btn" data-status="completed">완료</button>
         </div>
 
+        <!-- Orders List -->
+        <section class="orders-section">
+            <div class="orders-header">
+                <h2>주문 목록</h2>
+            </div>
+            <div class="orders-list" id="ordersList">
+                <div class="empty-state">
+                    <p>📭 주문이 없습니다</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Staff Calls Section -->
         <section class="staff-calls-section">
             <div class="section-header">
@@ -86,22 +99,6 @@
             <div class="staff-calls-list" id="staffCallsList">
                 <div class="empty-state">
                     <p>호출이 없습니다</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Orders List -->
-        <section class="orders-section">
-            <div class="orders-header">
-                <h2>주문 목록</h2>
-                <div class="action-buttons">
-                    <button class="btn btn-secondary" id="clearCompletedBtn">완료 주문 삭제</button>
-                    <button class="btn btn-danger" id="clearAllBtn">전체 삭제</button>
-                </div>
-            </div>
-            <div class="orders-list" id="ordersList">
-                <div class="empty-state">
-                    <p>📭 주문이 없습니다</p>
                 </div>
             </div>
         </section>

@@ -17,8 +17,7 @@ const ordersListEl = document.getElementById('ordersList');
 const staffCallsListEl = document.getElementById('staffCallsList');
 const callCountEl = document.getElementById('callCount');
 const tabButtons = document.querySelectorAll('.tab-btn');
-const clearCompletedBtn = document.getElementById('clearCompletedBtn');
-const clearAllBtn = document.getElementById('clearAllBtn');
+const callCountHeaderEl = document.getElementById('callCountHeader');
 const orderDetailModal = document.getElementById('orderDetailModal');
 const closeDetailModal = document.getElementById('closeDetailModal');
 const orderDetailContent = document.getElementById('orderDetailContent');
@@ -78,14 +77,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderOrders();
         });
     });
-
-    // Clear buttons
-    if (clearCompletedBtn) {
-        clearCompletedBtn.addEventListener('click', clearCompletedOrders);
-    }
-    if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', clearAllOrders);
-    }
 
     // Modal close
     closeDetailModal.addEventListener('click', closeModal);
@@ -307,6 +298,7 @@ function createOrderCard(order) {
         `;
     }
     actionsHTML += `<button class="action-btn btn-view" onclick="viewOrderDetail('${order.id}')">상세</button>`;
+    actionsHTML += `<button class="action-btn btn-delete" onclick="deleteOrder('${order.id}')">🗑️</button>`;
 
     card.innerHTML = `
         <div class="order-header">
@@ -374,6 +366,21 @@ async function cancelOrder(orderId) {
         } catch (error) {
             console.error('Error cancelling order:', error);
             alert('주문 취소 중 오류가 발생했습니다.');
+        }
+    }
+}
+
+// Delete order
+async function deleteOrder(orderId) {
+    if (confirm('이 주문을 삭제하시겠습니까?')) {
+        try {
+            await apiClient.deleteOrder(orderId);
+            orders = orders.filter(o => o.id !== orderId);
+            updateStats();
+            renderOrders();
+        } catch (error) {
+            console.error('Error deleting order:', error);
+            alert('주문 삭제 중 오류가 발생했습니다.');
         }
     }
 }
@@ -452,6 +459,7 @@ function renderStaffCalls() {
 
     const pendingCalls = staffCalls.filter(call => call.status === 'pending');
     callCountEl.textContent = pendingCalls.length;
+    if (callCountHeaderEl) callCountHeaderEl.textContent = pendingCalls.length;
 
     if (pendingCalls.length === 0) {
         staffCallsListEl.innerHTML = '<div class="empty-state"><p>호출이 없습니다</p></div>';
@@ -550,6 +558,7 @@ function formatPrice(price) {
 window.acceptOrder = acceptOrder;
 window.completeOrder = completeOrder;
 window.cancelOrder = cancelOrder;
+window.deleteOrder = deleteOrder;
 window.viewOrderDetail = viewOrderDetail;
 window.completeStaffCall = completeStaffCall;
 
