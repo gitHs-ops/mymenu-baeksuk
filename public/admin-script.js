@@ -24,12 +24,13 @@ const orderDetailContent = document.getElementById('orderDetailContent');
 const soundToggle = document.getElementById('soundToggle');
 // staffCall 관련 요소는 DOMContentLoaded 안에서 참조
 let staffCallViewActive = false;
-let staffCallToggleBtn, ordersSectionEl, statsDashboardEl, orderStatsEl;
+let staffCallToggleBtn, pendingToggleBtn, ordersSectionEl, statsDashboardEl, orderStatsEl;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
     // 직원 호출 관련 DOM 요소 할당
     staffCallToggleBtn = document.getElementById('staffCallToggle');
+    pendingToggleBtn = document.getElementById('pendingToggle');
     ordersSectionEl = document.querySelector('.orders-section');
     statsDashboardEl = document.querySelector('.stats-dashboard');
     orderStatsEl = document.querySelector('.order-stats');
@@ -95,9 +96,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // 직원 호출 토글 버튼
+    // 대기 버튼 → 주문 목록 표시
+    pendingToggleBtn.addEventListener('click', () => {
+        toggleStaffCallView(false);
+    });
+
+    // 직원 호출 버튼 → 직원 호출 목록 표시
     staffCallToggleBtn.addEventListener('click', () => {
-        toggleStaffCallView(!staffCallViewActive);
+        toggleStaffCallView(true);
     });
 
     // Modal close
@@ -588,6 +594,7 @@ function localDateStr(date) {
 function toggleStaffCallView(show) {
     staffCallViewActive = show;
     staffCallToggleBtn.classList.toggle('active', show);
+    pendingToggleBtn.classList.toggle('active', !show);
     ordersSectionEl.style.display = show ? 'none' : '';
     statsDashboardEl.style.display = show ? 'none' : '';
     orderStatsEl.style.display = show ? 'none' : '';

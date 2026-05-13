@@ -175,9 +175,11 @@ function renderMenu(items, menuContainer, categoryNav) {
         categoryNav.insertBefore(btn, staffCallBtn);
     });
 
-    categoryNav.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', handleCategoryClick);
-    });
+    // 이벤트 위임 (중복 방지)
+    if (!categoryNav._catListener) {
+        categoryNav.addEventListener('click', handleCategoryClick);
+        categoryNav._catListener = true;
+    }
 
     // 메뉴 섹션 동적 생성
     menuContainer.innerHTML = '';
@@ -411,34 +413,20 @@ window.removeItem = removeItem;
 
 // Made with Bob
 
-// Category filter function
+// Category filter function (event delegation)
 function handleCategoryClick(e) {
-    const category = e.currentTarget.dataset.category;
-    const sections = document.querySelectorAll('.menu-section');
-    const buttons = document.querySelectorAll('.category-btn');
+    const btn = e.target.closest('.category-btn[data-category]');
+    if (!btn) return;
+    const category = btn.dataset.category;
 
-    // Update active button
-    buttons.forEach(btn => btn.classList.remove('active'));
-    e.currentTarget.classList.add('active');
-    
-    // Show/hide sections
-    if (category === 'all') {
-        sections.forEach(section => section.classList.remove('hidden'));
-    } else {
-        sections.forEach(section => {
-            if (section.dataset.category === category) {
-                section.classList.remove('hidden');
-            } else {
-                section.classList.add('hidden');
-            }
-        });
-    }
-    
-    // Smooth scroll to menu container
-    document.querySelector('.menu-container').scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('.menu-section').forEach(section => {
+        section.classList.toggle('hidden', category !== 'all' && section.dataset.category !== category);
     });
+
+    document.querySelector('.menu-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Open order history

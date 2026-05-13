@@ -14,7 +14,6 @@
                 <h1>🏪 주문 관리 시스템</h1>
                 <div class="date-picker-bar">
                     <button class="date-nav-btn" id="prevDay">◀</button>
-                    <span class="calendar-icon">📅</span>
                     <input type="date" id="dateFilter" />
                     <button class="date-nav-btn" id="nextDay">▶</button>
                     <button class="date-today-btn" id="todayBtn">오늘</button>
@@ -22,7 +21,7 @@
             </div>
             <div class="header-info">
                 <span class="current-time" id="currentTime"></span>
-                <span class="order-count">대기 주문: <span id="pendingCount">0</span></span>
+                <button class="pending-toggle active" id="pendingToggle">대기 <span id="pendingCount">0</span></button>
                 <button class="staff-call-toggle" id="staffCallToggle">🔔 직원 호출 <span id="callCountHeader">0</span></button>
                 <a href="/menu-admin" class="menu-manage-btn">🍽️ 메뉴관리</a>
             </div>
