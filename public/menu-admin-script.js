@@ -3,7 +3,8 @@ let menuItems = [];
 const menuListEl = document.getElementById('menuList');
 const menuTotalCountEl = document.getElementById('menuTotalCount');
 const addMenuForm = document.getElementById('addMenuForm');
-const categoryListEl = document.getElementById('categoryList');
+const newCategoryEl = document.getElementById('newCategory');
+const editCategoryEl = document.getElementById('editCategory');
 const editModal = document.getElementById('editModal');
 
 const CATEGORY_ICONS = {
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadMenu() {
     try {
-        menuItems = await apiClient.getMenu();
+        menuItems = await apiClient.getAllMenu();
         renderMenuList();
     } catch (e) {
         menuListEl.innerHTML = '<div class="menu-loading">메뉴를 불러오는데 실패했습니다</div>';
@@ -34,9 +35,11 @@ async function loadMenu() {
 function renderMenuList() {
     menuTotalCountEl.textContent = `${menuItems.length}개`;
 
-    // 카테고리 datalist 업데이트
+    // 카테고리 select 업데이트
     const cats = [...new Set(menuItems.map(i => i.category))];
-    categoryListEl.innerHTML = cats.map(c => `<option value="${c}">`).join('');
+    const optionsHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    newCategoryEl.innerHTML = '<option value="">카테고리 선택</option>' + optionsHTML;
+    editCategoryEl.innerHTML = optionsHTML;
 
     if (menuItems.length === 0) {
         menuListEl.innerHTML = '<div class="menu-loading">등록된 메뉴가 없습니다</div>';

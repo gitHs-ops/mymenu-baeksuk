@@ -32,18 +32,22 @@
     flex-wrap: wrap;
     align-items: center;
 }
-.add-menu-form input {
+.add-menu-form input,
+.add-menu-form select {
     padding: 10px 14px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     font-size: 1em;
     font-family: inherit;
     transition: border-color 0.2s;
+    background: white;
 }
-.add-menu-form input:focus {
+.add-menu-form input:focus,
+.add-menu-form select:focus {
     outline: none;
     border-color: #667eea;
 }
+#newCategory { flex: 1.5; min-width: 120px; }
 #newName     { flex: 2; min-width: 140px; }
 #newCategory { flex: 1.5; min-width: 120px; }
 #newPrice    { flex: 1; min-width: 110px; }
@@ -217,15 +221,19 @@
     font-weight: 600;
     color: #555;
 }
-.edit-field input {
+.edit-field input,
+.edit-field select {
     padding: 10px 14px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     font-size: 1em;
     font-family: inherit;
     transition: border-color 0.2s;
+    background: white;
+    width: 100%;
 }
-.edit-field input:focus {
+.edit-field input:focus,
+.edit-field select:focus {
     outline: none;
     border-color: #667eea;
 }

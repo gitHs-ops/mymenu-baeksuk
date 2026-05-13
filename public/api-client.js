@@ -95,6 +95,10 @@ class APIClient {
         return this.request('/api/menu');
     }
 
+    async getAllMenu() {
+        return this.request('/api/menu?all=true');
+    }
+
     async addMenuItem(data) {
         return this.request('/api/menu', { method: 'POST', body: JSON.stringify(data) });
     }

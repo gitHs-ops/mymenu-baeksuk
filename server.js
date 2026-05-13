@@ -120,14 +120,17 @@ function broadcast(data) {
 }
 
 // Get menu items
+// ?all=true → 관리자용 전체 반환, 기본은 판매중 항목만
 app.get('/api/menu', async (req, res) => {
+    const showAll = req.query.all === 'true';
     if (!USE_DATABASE) {
-        return res.json(memoryMenu);
+        return res.json(showAll ? memoryMenu : memoryMenu.filter(i => i.is_available));
     }
     try {
-        const [items] = await pool.query(
-            'SELECT id, name, category, price, is_available, sort_order FROM menu_items WHERE is_available = TRUE ORDER BY sort_order ASC'
-        );
+        const query = showAll
+            ? 'SELECT id, name, category, price, is_available, sort_order FROM menu_items ORDER BY sort_order ASC'
+            : 'SELECT id, name, category, price, is_available, sort_order FROM menu_items WHERE is_available = TRUE ORDER BY sort_order ASC';
+        const [items] = await pool.query(query);
         res.json(items);
     } catch (error) {
         console.error('Error fetching menu:', error);

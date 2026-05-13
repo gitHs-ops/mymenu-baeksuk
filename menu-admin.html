@@ -21,8 +21,9 @@
             <h2>새 메뉴 추가</h2>
             <form class="add-menu-form" id="addMenuForm">
                 <input type="text" id="newName" placeholder="메뉴 이름" required />
-                <input type="text" id="newCategory" list="categoryList" placeholder="카테고리" required />
-                <datalist id="categoryList"></datalist>
+                <select id="newCategory" required>
+                    <option value="">카테고리 선택</option>
+                </select>
                 <input type="number" id="newPrice" placeholder="가격 (원)" min="0" step="100" required />
                 <button type="submit" class="btn-add-menu">+ 추가</button>
             </form>
@@ -54,7 +55,7 @@
                     </div>
                     <div class="edit-field">
                         <label>카테고리</label>
-                        <input type="text" id="editCategory" list="categoryList" />
+                        <select id="editCategory"></select>
                     </div>
                     <div class="edit-field">
                         <label>가격 (원)</label>
