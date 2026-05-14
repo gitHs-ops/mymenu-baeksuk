@@ -149,6 +149,10 @@
             margin-bottom: 8px;
         }
 
+        .print-title {
+            display: none;
+        }
+
         @media print {
             body {
                 background: white;
@@ -163,6 +167,14 @@
                 display: none;
             }
 
+            .screen-title {
+                display: none;
+            }
+
+            .print-title {
+                display: block;
+            }
+
             .qr-display {
                 page-break-inside: avoid;
             }
@@ -171,7 +183,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🍜 테이블 QR 코드 생성기</h1>
+        <h1 class="screen-title">🍜 테이블 QR 코드 생성기</h1>
+        <h1 class="print-title">아래 QR코드를 폰 카메라에 가져다 대세요.</h1>
 
         <div class="input-section">
             <label for="tableNumber">테이블 번호:</label>
