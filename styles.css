@@ -388,7 +388,7 @@ body {
     bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--primary);
+    background: linear-gradient(135deg, #a855f7, #7e22ce);
     color: white;
     border: none;
     padding: 12px 28px;
@@ -396,7 +396,7 @@ body {
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.5);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
     display: flex;
@@ -406,9 +406,9 @@ body {
 }
 
 .cart-button:hover {
-    background: var(--primary-dark);
+    background: linear-gradient(135deg, #9333ea, #6b21a8);
     transform: translateX(-50%) translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 20px 25px -5px rgba(168, 85, 247, 0.6);
 }
 
 #cartCount {
