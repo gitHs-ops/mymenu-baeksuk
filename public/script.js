@@ -129,7 +129,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeStaffCallConfirmation();
         }
     });
+
+    // Real-time updates so an open order-history modal stays consistent with admin changes
+    apiClient.connectWebSocket(handleCustomerWebSocketMessage);
 });
+
+let historyRefreshPending = false;
+function handleCustomerWebSocketMessage(data) {
+    if (!historyModal || !historyModal.classList.contains('active')) return;
+
+    const refreshTriggers = ['order_status_update', 'order_deleted', 'order_updated', 'new_order', 'completed_orders_cleared'];
+    if (!refreshTriggers.includes(data.type)) return;
+
+    if (historyRefreshPending) return;
+    historyRefreshPending = true;
+    setTimeout(() => {
+        historyRefreshPending = false;
+        if (historyModal.classList.contains('active')) {
+            openHistory();
+        }
+    }, 250);
+}
 
 // Load menu items
 async function loadMenu() {
