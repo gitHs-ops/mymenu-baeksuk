@@ -313,7 +313,7 @@ function updateStats() {
     pendingCountEl.textContent = pending;
 }
 
-// Render orders
+// Render orders — grouped by table so a session can be cleared in one click
 function renderOrders() {
     let filteredOrders = orders;
 
@@ -328,11 +328,52 @@ function renderOrders() {
 
     ordersListEl.innerHTML = '';
 
-    filteredOrders.forEach(order => {
-        const orderCard = createOrderCard(order);
-        ordersListEl.appendChild(orderCard);
+    const groups = new Map();
+    filteredOrders.forEach(o => {
+        if (!groups.has(o.table_number)) groups.set(o.table_number, []);
+        groups.get(o.table_number).push(o);
     });
-    
+
+    // Sort tables by most recent activity desc
+    const sortedTables = [...groups.entries()].sort((a, b) => {
+        const aLatest = Math.max(...a[1].map(o => new Date(o.created_at).getTime()));
+        const bLatest = Math.max(...b[1].map(o => new Date(o.created_at).getTime()));
+        return bLatest - aLatest;
+    });
+
+    sortedTables.forEach(([tableNumber, tableOrders]) => {
+        // Sort each table's orders by time desc
+        tableOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        const group = document.createElement('div');
+        group.className = 'table-group';
+
+        const tableTotal = tableOrders.reduce((sum, o) => sum + parseFloat(o.total), 0);
+        const hasCompleted = tableOrders.some(o => o.status === 'completed');
+        const allTerminal = tableOrders.every(o => o.status === 'completed' || o.status === 'cancelled');
+
+        const header = document.createElement('div');
+        header.className = 'table-group-header';
+        header.innerHTML = `
+            <div class="table-group-title">
+                <span class="table-group-num">테이블 ${tableNumber}</span>
+                <span class="table-group-count">${tableOrders.length}건</span>
+                <span class="table-group-total">${formatPrice(tableTotal)}</span>
+            </div>
+            <div class="table-group-actions">
+                ${hasCompleted ? `<button class="action-btn btn-clear" onclick="clearTable(${tableNumber})"><i data-lucide="receipt"></i> 테이블 마감</button>` : ''}
+            </div>
+        `;
+        if (allTerminal) header.classList.add('all-done');
+        group.appendChild(header);
+
+        tableOrders.forEach(order => {
+            group.appendChild(createOrderCard(order));
+        });
+
+        ordersListEl.appendChild(group);
+    });
+
     lucide.createIcons();
 }
 
@@ -376,9 +417,6 @@ function createOrderCard(order) {
         `;
     }
     actionsHTML += `<button class="action-btn btn-view" onclick="viewOrderDetail('${order.id}')"><i data-lucide="eye"></i> 상세</button>`;
-    if (order.status === 'completed') {
-        actionsHTML += `<button class="action-btn btn-clear" onclick="clearTable(${order.table_number})"><i data-lucide="receipt"></i> 마감</button>`;
-    }
     if (order.status !== 'pending') {
         actionsHTML += `<button class="action-btn btn-delete" onclick="deleteOrder('${order.id}')"><i data-lucide="trash-2"></i></button>`;
     }
