@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const display = selectedTable ?? '-';
         cartTableNumberSpan.textContent = display;
         confirmTableNumberSpan.textContent = display;
+        cartButton.disabled = !selectedTable;
     });
 
     cartButton.addEventListener('click', openCart);
