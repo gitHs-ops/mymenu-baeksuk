@@ -118,10 +118,14 @@ function displayMenuItems(items) {
                 <h3 class="menu-name">${item.name}</h3>
                 <p class="menu-price">${formatPrice(item.price)}</p>
             </div>
-            <button class="add-btn" onclick="handleAddToCart(${item.id}, ${JSON.stringify(item.name)}, ${item.price})" ${!item.is_available ? 'disabled' : ''}>
+            <button class="add-btn" ${!item.is_available ? 'disabled' : ''}>
                 <i data-lucide="plus"></i> 담기
             </button>
         `;
+        const addBtn = card.querySelector('.add-btn');
+        if (item.is_available) {
+            addBtn.addEventListener('click', () => handleAddToCart(item.id, item.name, item.price));
+        }
         menuContainer.appendChild(card);
     });
     lucide.createIcons();
