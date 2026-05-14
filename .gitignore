@@ -30,4 +30,10 @@ build/
 # Railway
 .railway/
 
+# User manual artifacts
+USER_MANUAL.md
+build_manual_docx.js
+사용자매뉴얼.docx
+사용자매뉴얼.pdf
+
 # Made with Bob
