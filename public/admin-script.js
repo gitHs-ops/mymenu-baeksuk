@@ -252,14 +252,38 @@ function playNotificationSound() {
     }
 }
 
-// Show notification
+// Show notification (in-page toast + optional browser notification)
 function showNotification(message) {
+    showToast(message);
     if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('새 주문 알림', {
+        new Notification('주문 알림', {
             body: message,
             icon: '🔔'
         });
     }
+}
+
+function showToast(message) {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = 'background:#333;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:15px;font-weight:600;opacity:0;transform:translateX(20px);transition:opacity .25s,transform .25s;pointer-events:auto;max-width:360px;';
+    container.appendChild(toast);
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    });
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
 }
 
 // Toggle sound
