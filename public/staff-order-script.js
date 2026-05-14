@@ -1,0 +1,259 @@
+// Staff order entry — hall server places orders on behalf of customers
+
+let cart = [];
+let selectedTable = null;
+let allMenuItems = [];
+
+const CATEGORY_ICONS = {
+    '탕수육': '🥘',
+    '요리':   '🍲',
+    '면':     '🍜',
+    '밥':     '🍚',
+    '1인세트':'🎁',
+    '2인세트':'🎁',
+    '계절':   '🌸',
+    '주류':   '🍺',
+};
+
+const TABLE_COUNT = 20;
+
+const tableNumberSpan = document.getElementById('tableNumber');
+const cartTableNumberSpan = document.getElementById('cartTableNumber');
+const confirmTableNumberSpan = document.getElementById('confirmTableNumber');
+const tablePickerGrid = document.getElementById('tablePickerGrid');
+const cartButton = document.getElementById('cartButton');
+const cartModal = document.getElementById('cartModal');
+const confirmModal = document.getElementById('confirmModal');
+const closeModal = document.getElementById('closeModal');
+const cartCount = document.getElementById('cartCount');
+const cartItems = document.getElementById('cartItems');
+const totalPrice = document.getElementById('totalPrice');
+const clearCartBtn = document.getElementById('clearCart');
+const orderButton = document.getElementById('orderButton');
+const closeConfirm = document.getElementById('closeConfirm');
+
+document.addEventListener('DOMContentLoaded', async () => {
+    renderTablePicker();
+    await loadMenu();
+
+    cartButton.addEventListener('click', openCart);
+    closeModal.addEventListener('click', closeCart);
+    clearCartBtn.addEventListener('click', clearCart);
+    orderButton.addEventListener('click', placeOrder);
+    closeConfirm.addEventListener('click', () => confirmModal.classList.remove('active'));
+
+    cartModal.addEventListener('click', (e) => {
+        if (e.target === cartModal) closeCart();
+    });
+    confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) confirmModal.classList.remove('active');
+    });
+});
+
+function renderTablePicker() {
+    tablePickerGrid.innerHTML = '';
+    for (let i = 1; i <= TABLE_COUNT; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'table-pick-btn';
+        btn.textContent = i;
+        btn.onclick = () => selectTable(i);
+        tablePickerGrid.appendChild(btn);
+    }
+}
+
+function selectTable(n) {
+    selectedTable = n;
+    tableNumberSpan.textContent = n;
+    cartTableNumberSpan.textContent = n;
+    confirmTableNumberSpan.textContent = n;
+    document.querySelectorAll('.table-pick-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx + 1 === n);
+    });
+}
+
+async function loadMenu() {
+    try {
+        allMenuItems = await apiClient.getMenu();
+        renderMenu(allMenuItems);
+    } catch (error) {
+        console.error('Error loading menu:', error);
+        document.getElementById('menuContainer').innerHTML = '<div class="menu-loading">메뉴를 불러오는 중 오류가 발생했습니다.</div>';
+    }
+}
+
+function renderMenu(menuItems) {
+    const categoryNav = document.getElementById('categoryNav');
+
+    const categories = {};
+    menuItems.forEach(item => {
+        if (!categories[item.category]) categories[item.category] = [];
+        categories[item.category].push(item);
+    });
+
+    categoryNav.querySelectorAll('.category-btn').forEach(btn => {
+        if (btn.dataset.category !== 'all') btn.remove();
+    });
+
+    Object.keys(categories).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'category-btn';
+        btn.dataset.category = cat;
+        btn.innerHTML = `<span class="cat-emoji">${CATEGORY_ICONS[cat] || '🍽️'}</span><span class="cat-text">${cat}</span>`;
+        btn.onclick = () => filterByCategory(cat);
+        categoryNav.appendChild(btn);
+    });
+
+    displayMenuItems(menuItems);
+}
+
+function displayMenuItems(items) {
+    const menuContainer = document.getElementById('menuContainer');
+    menuContainer.innerHTML = '';
+
+    if (items.length === 0) {
+        menuContainer.innerHTML = '<div class="menu-loading">해당 카테고리에 메뉴가 없습니다.</div>';
+        return;
+    }
+
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `menu-card ${!item.is_available ? 'unavailable' : ''}`;
+        card.innerHTML = `
+            <div class="menu-card-content">
+                <h3 class="menu-name">${item.name}</h3>
+                <p class="menu-price">${formatPrice(item.price)}</p>
+            </div>
+            <button class="add-btn" onclick="handleAddToCart(${item.id}, ${JSON.stringify(item.name)}, ${item.price})" ${!item.is_available ? 'disabled' : ''}>
+                <i data-lucide="plus"></i> 담기
+            </button>
+        `;
+        menuContainer.appendChild(card);
+    });
+    lucide.createIcons();
+}
+
+function filterByCategory(category) {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === category);
+    });
+    const filtered = category === 'all' ? allMenuItems : allMenuItems.filter(i => i.category === category);
+    displayMenuItems(filtered);
+}
+
+function handleAddToCart(id, name, price) {
+    const existing = cart.find(item => item.id === id);
+    if (existing) {
+        existing.quantity += 1;
+    } else {
+        cart.push({ id, name, price, quantity: 1 });
+    }
+    updateCartUI();
+}
+
+function updateCartUI() {
+    const totalQty = cart.reduce((sum, i) => sum + i.quantity, 0);
+    cartCount.textContent = totalQty;
+
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="empty-cart">장바구니가 비어있습니다</p>';
+    } else {
+        cartItems.innerHTML = '';
+        cart.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <div class="cart-item-info">
+                    <span class="cart-item-name">${item.name}</span>
+                    <span class="cart-item-price">${formatPrice(item.price)}</span>
+                </div>
+                <div class="cart-item-controls">
+                    <button class="qty-btn" onclick="decreaseQuantity(${index})">−</button>
+                    <span class="qty">${item.quantity}</span>
+                    <button class="qty-btn" onclick="increaseQuantity(${index})">＋</button>
+                    <button class="remove-btn" onclick="removeItem(${index})">삭제</button>
+                </div>
+            `;
+            cartItems.appendChild(div);
+        });
+    }
+
+    const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    totalPrice.textContent = formatPrice(total);
+}
+
+function increaseQuantity(index) {
+    cart[index].quantity += 1;
+    updateCartUI();
+}
+
+function decreaseQuantity(index) {
+    if (cart[index].quantity > 1) {
+        cart[index].quantity -= 1;
+    } else {
+        cart.splice(index, 1);
+    }
+    updateCartUI();
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    updateCartUI();
+}
+
+function clearCart() {
+    cart = [];
+    updateCartUI();
+}
+
+function openCart() {
+    if (!selectedTable) {
+        alert('먼저 테이블을 선택하세요.');
+        return;
+    }
+    cartModal.classList.add('active');
+}
+
+function closeCart() {
+    cartModal.classList.remove('active');
+}
+
+async function placeOrder() {
+    if (!selectedTable) {
+        alert('테이블을 먼저 선택하세요.');
+        return;
+    }
+    if (cart.length === 0) {
+        alert('장바구니가 비어있습니다.');
+        return;
+    }
+
+    const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    const orderData = {
+        tableNumber: selectedTable,
+        items: cart,
+        total
+    };
+
+    try {
+        const response = await apiClient.createOrder(orderData);
+        if (response.success) {
+            cart = [];
+            updateCartUI();
+            closeCart();
+            confirmModal.classList.add('active');
+        }
+    } catch (error) {
+        console.error('Error placing order:', error);
+        alert('주문 입력에 실패했습니다. 다시 시도해주세요.');
+    }
+}
+
+function formatPrice(price) {
+    return Math.round(Number(price)).toLocaleString('ko-KR') + '원';
+}
+
+window.handleAddToCart = handleAddToCart;
+window.increaseQuantity = increaseQuantity;
+window.decreaseQuantity = decreaseQuantity;
+window.removeItem = removeItem;
+window.filterByCategory = filterByCategory;

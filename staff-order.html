@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홀 직원 주문 입력</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="staff-order-styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>👨‍🍳 홀 직원 주문 입력</h1>
+            <div class="header-row">
+                <div class="table-info">테이블: <span id="tableNumber">-</span></div>
+                <a href="/admin" class="history-btn"><i data-lucide="arrow-left"></i> 관리화면</a>
+            </div>
+        </header>
+
+        <section class="table-picker">
+            <div class="table-picker-label">테이블 선택</div>
+            <div class="table-picker-grid" id="tablePickerGrid"></div>
+        </section>
+
+        <div class="content-area">
+            <nav class="category-nav" id="categoryNav">
+                <button class="category-btn active" data-category="all" onclick="filterByCategory('all')">
+                    <span class="cat-emoji">🍽️</span>
+                    <span class="cat-text">전체</span>
+                </button>
+            </nav>
+
+            <div class="menu-container" id="menuContainer">
+                <div class="menu-loading">메뉴를 불러오는 중...</div>
+            </div>
+        </div>
+
+        <button class="cart-button" id="cartButton">
+            <i data-lucide="shopping-cart"></i> 장바구니 <span id="cartCount">0</span>
+        </button>
+
+        <div class="modal" id="cartModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🛒 장바구니 (테이블 <span id="cartTableNumber">-</span>)</h2>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+                <div class="cart-items" id="cartItems">
+                    <p class="empty-cart">장바구니가 비어있습니다</p>
+                </div>
+                <div class="cart-summary">
+                    <div class="total-row">
+                        <span>총 금액:</span>
+                        <span class="total-price" id="totalPrice">0원</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="clearCart">전체 삭제</button>
+                    <button class="btn btn-primary" id="orderButton">주문 입력</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="confirmModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>✅ 주문 입력 완료</h2>
+                </div>
+                <div class="confirm-message">
+                    <p>테이블 <span id="confirmTableNumber">-</span> 주문이 등록되었습니다.</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="closeConfirm">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/api-client.js"></script>
+    <script src="/staff-order-script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

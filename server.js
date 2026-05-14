@@ -924,6 +924,10 @@ app.get('/stats', (req, res) => {
     res.sendFile(__dirname + '/stats.html');
 });
 
+app.get('/staff-order', (req, res) => {
+    res.sendFile(__dirname + '/staff-order.html');
+});
+
 // Initialize and start server
 const PORT = process.env.PORT || 3000;
 
