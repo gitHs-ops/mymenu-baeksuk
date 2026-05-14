@@ -171,7 +171,11 @@ function handleWebSocketMessage(data) {
             break;
 
         case 'order_deleted':
-            // Remove order from list
+            const deletedOrder = orders.find(o => o.id === data.orderId);
+            if (deletedOrder) {
+                if (soundEnabled) playNotificationSound();
+                showNotification(`❌ 주문 취소! 테이블 ${deletedOrder.table_number}`);
+            }
             orders = orders.filter(o => o.id !== data.orderId);
             updateStats();
             renderOrders();
@@ -182,6 +186,8 @@ function handleWebSocketMessage(data) {
             if (updatedOrder) {
                 updatedOrder.items = data.items;
                 updatedOrder.total = data.total;
+                if (soundEnabled) playNotificationSound();
+                showNotification(`✏️ 주문 변경! 테이블 ${updatedOrder.table_number}`);
                 updateStats();
                 renderOrders();
             }
