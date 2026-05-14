@@ -44,9 +44,11 @@ async function initializeDatabase() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 completed_at TIMESTAMP NULL,
+                cleared_at TIMESTAMP NULL,
                 INDEX idx_table_number (table_number),
                 INDEX idx_status (status),
-                INDEX idx_created_at (created_at)
+                INDEX idx_created_at (created_at),
+                INDEX idx_cleared_at (cleared_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         `);
 
@@ -99,6 +101,15 @@ async function initializeDatabase() {
         try {
             await connection.query('ALTER TABLE menu_items ADD COLUMN sort_order INT DEFAULT 0 AFTER is_available');
             console.log('✅ sort_order column added');
+        } catch (e) {
+            // 이미 존재하면 무시
+        }
+
+        // 기존 orders 테이블에 cleared_at 컬럼 없을 경우 추가 (테이블 세션 마감용)
+        try {
+            await connection.query('ALTER TABLE orders ADD COLUMN cleared_at TIMESTAMP NULL AFTER completed_at');
+            await connection.query('CREATE INDEX idx_cleared_at ON orders (cleared_at)');
+            console.log('✅ cleared_at column added');
         } catch (e) {
             // 이미 존재하면 무시
         }

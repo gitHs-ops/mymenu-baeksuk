@@ -163,6 +163,12 @@ class APIClient {
         });
     }
 
+    async clearTable(tableNumber) {
+        return this.request(`/api/tables/${tableNumber}/clear`, {
+            method: 'POST',
+        });
+    }
+
     // Statistics
     async getStatistics() {
         return this.request('/api/statistics');

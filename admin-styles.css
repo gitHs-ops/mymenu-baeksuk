@@ -502,6 +502,11 @@ body {
     color: var(--text-main);
 }
 
+.btn-clear {
+    background: linear-gradient(135deg, #a855f7, #7e22ce);
+    color: white;
+}
+
 /* Modal */
 .modal {
     display: none;

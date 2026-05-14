@@ -299,20 +299,22 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
-// Get orders by table number
+// Get orders by table number (only un-cleared = current session)
 app.get('/api/orders/table/:tableNumber', async (req, res) => {
     const { tableNumber } = req.params;
-    
+
     if (!USE_DATABASE) {
         // Use in-memory storage
-        const tableOrders = memoryOrders.filter(o => o.table_number === parseInt(tableNumber));
+        const tableOrders = memoryOrders.filter(o =>
+            o.table_number === parseInt(tableNumber) && !o.cleared_at
+        );
         return res.json(tableOrders);
     }
-    
+
     try {
-        // Get orders for specific table
+        // Get orders for specific table — exclude cleared sessions
         const [orders] = await pool.query(
-            'SELECT * FROM orders WHERE table_number = ? ORDER BY created_at DESC',
+            'SELECT * FROM orders WHERE table_number = ? AND cleared_at IS NULL ORDER BY created_at DESC',
             [tableNumber]
         );
         
@@ -607,6 +609,39 @@ app.delete('/api/orders/:id', async (req, res) => {
     } catch (error) {
         console.error('Error deleting order:', error);
         res.status(500).json({ error: 'Failed to delete order' });
+    }
+});
+
+// Clear (close) a table's session — keeps rows for stats but hides from customer history
+app.post('/api/tables/:tableNumber/clear', async (req, res) => {
+    const tableNumber = parseInt(req.params.tableNumber, 10);
+    if (isNaN(tableNumber)) {
+        return res.status(400).json({ error: 'Invalid table number' });
+    }
+
+    if (!USE_DATABASE) {
+        let count = 0;
+        const now = new Date().toISOString();
+        memoryOrders.forEach(o => {
+            if (o.table_number === tableNumber && !o.cleared_at) {
+                o.cleared_at = now;
+                count++;
+            }
+        });
+        broadcast({ type: 'table_cleared', tableNumber, clearedCount: count });
+        return res.json({ success: true, clearedCount: count });
+    }
+
+    try {
+        const [result] = await pool.query(
+            'UPDATE orders SET cleared_at = NOW() WHERE table_number = ? AND cleared_at IS NULL',
+            [tableNumber]
+        );
+        broadcast({ type: 'table_cleared', tableNumber, clearedCount: result.affectedRows });
+        res.json({ success: true, clearedCount: result.affectedRows });
+    } catch (error) {
+        console.error('Error clearing table:', error);
+        res.status(500).json({ error: 'Failed to clear table' });
     }
 });
 

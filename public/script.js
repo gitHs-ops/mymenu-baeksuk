@@ -136,6 +136,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 let historyRefreshPending = false;
 function handleCustomerWebSocketMessage(data) {
+    // Table cleared = previous customer's session closed by staff. Wipe local state for this table.
+    if (data.type === 'table_cleared' && data.tableNumber === tableNumber) {
+        cart = [];
+        updateCartUI();
+        if (historyModal && historyModal.classList.contains('active')) {
+            historyItems.innerHTML = '<p class="empty-history">테이블이 마감되었습니다. 새 주문을 시작하세요.</p>';
+        }
+        return;
+    }
+
     if (!historyModal || !historyModal.classList.contains('active')) return;
 
     const refreshTriggers = ['order_status_update', 'order_deleted', 'order_updated', 'new_order', 'completed_orders_cleared'];

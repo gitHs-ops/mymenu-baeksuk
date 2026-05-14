@@ -199,6 +199,10 @@ function handleWebSocketMessage(data) {
             updateStats();
             renderOrders();
             break;
+
+        case 'table_cleared':
+            showNotification(`🧾 테이블 ${data.tableNumber} 마감 (${data.clearedCount}건)`);
+            break;
     }
 }
 
@@ -372,6 +376,9 @@ function createOrderCard(order) {
         `;
     }
     actionsHTML += `<button class="action-btn btn-view" onclick="viewOrderDetail('${order.id}')"><i data-lucide="eye"></i> 상세</button>`;
+    if (order.status === 'completed') {
+        actionsHTML += `<button class="action-btn btn-clear" onclick="clearTable(${order.table_number})"><i data-lucide="receipt"></i> 마감</button>`;
+    }
     if (order.status !== 'pending') {
         actionsHTML += `<button class="action-btn btn-delete" onclick="deleteOrder('${order.id}')"><i data-lucide="trash-2"></i></button>`;
     }
@@ -662,5 +669,18 @@ window.cancelOrder = cancelOrder;
 window.deleteOrder = deleteOrder;
 window.viewOrderDetail = viewOrderDetail;
 window.completeStaffCall = completeStaffCall;
+window.clearTable = clearTable;
+
+async function clearTable(tableNumber) {
+    if (!confirm(`테이블 ${tableNumber}의 현재 세션을 마감하시겠습니까?\n(통계는 유지되며, 새 손님은 이전 주문을 보지 않습니다.)`)) {
+        return;
+    }
+    try {
+        await apiClient.clearTable(tableNumber);
+    } catch (error) {
+        console.error('Error clearing table:', error);
+        alert('테이블 마감에 실패했습니다.');
+    }
+}
 
 // Made with Bob
