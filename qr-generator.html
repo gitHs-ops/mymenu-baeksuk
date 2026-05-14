@@ -114,8 +114,8 @@
 
         .qr-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
         }
 
         .qr-card {
@@ -199,19 +199,25 @@
             }
 
             .qr-grid {
-                gap: 8mm;
+                gap: 4mm;
             }
 
             .qr-card {
                 box-shadow: none;
                 border: 1px dashed #999;
-                padding: 8mm;
+                padding: 4mm;
                 page-break-inside: avoid;
             }
 
+            .qr-card-prompt {
+                font-size: 0.85em;
+                margin-bottom: 4px;
+            }
+
             .qr-card .table-info {
-                font-size: 1.3em;
+                font-size: 1.1em;
                 color: #000;
+                margin-top: 4px;
             }
         }
     </style>
@@ -221,8 +227,8 @@
         <h1 class="screen-title">🍜 테이블 QR 코드 생성기</h1>
 
         <div class="input-section">
-            <label for="tableNumber">시작 테이블 번호 (입력값 N부터 N+3까지 4개 동시 생성):</label>
-            <input type="number" id="tableNumber" min="1" max="97" value="1" placeholder="예: 1을 입력하면 1~4번 생성">
+            <label for="tableNumber">시작 테이블 번호 (입력값 N부터 N+8까지 9개 동시 생성):</label>
+            <input type="number" id="tableNumber" min="1" max="92" value="1" placeholder="예: 1을 입력하면 1~9번 생성">
         </div>
 
         <div class="input-section">
@@ -243,13 +249,13 @@
         <div class="instructions">
             <h3>📋 사용 방법</h3>
             <ol>
-                <li><strong>시작 테이블 번호</strong>를 입력하세요 (1-97). 예: 1을 입력하면 1·2·3·4번 4개가 한 번에 생성됩니다.</li>
+                <li><strong>시작 테이블 번호</strong>를 입력하세요 (1-92). 예: 1을 입력하면 1~9번 9개가 한 번에 생성됩니다.</li>
                 <li><strong>주문 페이지 URL</strong>을 확인하세요 (자동 입력됨)</li>
-                <li><strong>"QR 코드 생성"</strong> 클릭 → 2×2 카드로 표시</li>
-                <li><strong>인쇄</strong> 시 A4 한 장에 4개가 함께 출력됩니다. <strong>다운로드</strong>는 4개 PNG 일괄 저장.</li>
+                <li><strong>"QR 코드 생성"</strong> 클릭 → 3×3 카드로 표시</li>
+                <li><strong>인쇄</strong> 시 A4 한 장에 9개가 함께 출력됩니다. <strong>다운로드</strong>는 9개 PNG 일괄 저장.</li>
             </ol>
             <p style="margin-top: 15px; color: #666;">
-                💡 다음 4개를 만들려면 시작 번호에 5를 입력 → 5·6·7·8번 생성.
+                💡 다음 9개를 만들려면 시작 번호에 10을 입력 → 10~18번 생성.
             </p>
         </div>
     </div>
@@ -258,7 +264,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <script>
-        const QR_BATCH = 4;
+        const QR_BATCH = 9;
+        const QR_PIXEL_SIZE = 150;
         let generated = false;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -271,8 +278,8 @@
             const baseUrl = document.getElementById('urlInput').value.trim() ||
                 window.location.href.replace('qr-generator.html', 'index.html');
 
-            if (isNaN(startTable) || startTable < 1 || startTable > 97) {
-                alert('올바른 시작 테이블 번호를 입력하세요 (1-97). 입력값부터 4개를 동시 생성합니다.');
+            if (isNaN(startTable) || startTable < 1 || startTable > 92) {
+                alert('올바른 시작 테이블 번호를 입력하세요 (1-92). 입력값부터 9개를 동시 생성합니다.');
                 return;
             }
 
@@ -305,8 +312,8 @@
 
                 new QRCode(qrWrap, {
                     text: url,
-                    width: 200,
-                    height: 200,
+                    width: QR_PIXEL_SIZE,
+                    height: QR_PIXEL_SIZE,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.H
