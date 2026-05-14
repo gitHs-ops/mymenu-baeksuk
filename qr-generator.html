@@ -296,7 +296,7 @@
 
                 const prompt = document.createElement('div');
                 prompt.className = 'qr-card-prompt';
-                prompt.innerHTML = 'QR코드를 폰 카메라에<br>가져다 대세요.';
+                prompt.textContent = '폰카메라를 QR코드에 갖다대세요.';
                 card.appendChild(prompt);
 
                 const qrWrap = document.createElement('div');
@@ -305,7 +305,7 @@
 
                 const info = document.createElement('div');
                 info.className = 'table-info';
-                info.textContent = `테이블 ${tableNumber}번`;
+                info.textContent = `테이블 ${tableNumber}번으로 주문됩니다.`;
                 card.appendChild(info);
 
                 grid.appendChild(card);
