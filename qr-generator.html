@@ -131,6 +131,14 @@
             padding: 8px;
         }
 
+        .qr-card-prompt {
+            font-size: 1em;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }
+
         .qr-card .table-info {
             margin-top: 8px;
             font-size: 1.2em;
@@ -159,10 +167,6 @@
             margin-bottom: 8px;
         }
 
-        .print-title {
-            display: none;
-        }
-
         @media print {
             @page {
                 size: A4 portrait;
@@ -186,12 +190,6 @@
 
             .screen-title {
                 display: none;
-            }
-
-            .print-title {
-                display: block;
-                font-size: 1.4em;
-                margin-bottom: 12px;
             }
 
             .qr-display {
@@ -221,7 +219,6 @@
 <body>
     <div class="container">
         <h1 class="screen-title">🍜 테이블 QR 코드 생성기</h1>
-        <h1 class="print-title">QR코드를 폰 카메라에<br>가져다 대세요.</h1>
 
         <div class="input-section">
             <label for="tableNumber">시작 테이블 번호 (입력값 N부터 N+3까지 4개 동시 생성):</label>
@@ -289,6 +286,11 @@
                 const card = document.createElement('div');
                 card.className = 'qr-card';
                 card.dataset.table = tableNumber;
+
+                const prompt = document.createElement('div');
+                prompt.className = 'qr-card-prompt';
+                prompt.innerHTML = 'QR코드를 폰 카메라에<br>가져다 대세요.';
+                card.appendChild(prompt);
 
                 const qrWrap = document.createElement('div');
                 qrWrap.className = 'qr-canvas-wrap';
