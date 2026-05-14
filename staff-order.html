@@ -13,15 +13,15 @@
         <header class="header">
             <h1>👨‍🍳 홀 직원 주문 입력</h1>
             <div class="header-row">
-                <div class="table-info">테이블: <span id="tableNumber">-</span></div>
-                <a href="/admin" class="history-btn"><i data-lucide="arrow-left"></i> 관리화면</a>
+                <div class="table-select-wrap">
+                    <label for="tableSelect" class="table-select-label">테이블</label>
+                    <select id="tableSelect" class="table-select">
+                        <option value="">선택</option>
+                    </select>
+                </div>
+                <a href="/admin" class="admin-back-btn"><i data-lucide="arrow-left"></i> 관리화면</a>
             </div>
         </header>
-
-        <section class="table-picker">
-            <div class="table-picker-label">테이블 선택</div>
-            <div class="table-picker-grid" id="tablePickerGrid"></div>
-        </section>
 
         <div class="content-area">
             <nav class="category-nav" id="categoryNav">

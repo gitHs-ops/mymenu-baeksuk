@@ -17,10 +17,9 @@ const CATEGORY_ICONS = {
 
 const TABLE_COUNT = 20;
 
-const tableNumberSpan = document.getElementById('tableNumber');
+const tableSelect = document.getElementById('tableSelect');
 const cartTableNumberSpan = document.getElementById('cartTableNumber');
 const confirmTableNumberSpan = document.getElementById('confirmTableNumber');
-const tablePickerGrid = document.getElementById('tablePickerGrid');
 const cartButton = document.getElementById('cartButton');
 const cartModal = document.getElementById('cartModal');
 const confirmModal = document.getElementById('confirmModal');
@@ -33,8 +32,16 @@ const orderButton = document.getElementById('orderButton');
 const closeConfirm = document.getElementById('closeConfirm');
 
 document.addEventListener('DOMContentLoaded', async () => {
-    renderTablePicker();
+    populateTableSelect();
     await loadMenu();
+
+    tableSelect.addEventListener('change', () => {
+        const v = parseInt(tableSelect.value, 10);
+        selectedTable = isNaN(v) ? null : v;
+        const display = selectedTable ?? '-';
+        cartTableNumberSpan.textContent = display;
+        confirmTableNumberSpan.textContent = display;
+    });
 
     cartButton.addEventListener('click', openCart);
     closeModal.addEventListener('click', closeCart);
@@ -50,25 +57,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-function renderTablePicker() {
-    tablePickerGrid.innerHTML = '';
+function populateTableSelect() {
     for (let i = 1; i <= TABLE_COUNT; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'table-pick-btn';
-        btn.textContent = i;
-        btn.onclick = () => selectTable(i);
-        tablePickerGrid.appendChild(btn);
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `테이블 ${i}`;
+        tableSelect.appendChild(opt);
     }
-}
-
-function selectTable(n) {
-    selectedTable = n;
-    tableNumberSpan.textContent = n;
-    cartTableNumberSpan.textContent = n;
-    confirmTableNumberSpan.textContent = n;
-    document.querySelectorAll('.table-pick-btn').forEach((btn, idx) => {
-        btn.classList.toggle('active', idx + 1 === n);
-    });
 }
 
 async function loadMenu() {
@@ -206,10 +201,6 @@ function clearCart() {
 }
 
 function openCart() {
-    if (!selectedTable) {
-        alert('먼저 테이블을 선택하세요.');
-        return;
-    }
     cartModal.classList.add('active');
 }
 
@@ -219,7 +210,7 @@ function closeCart() {
 
 async function placeOrder() {
     if (!selectedTable) {
-        alert('테이블을 먼저 선택하세요.');
+        alert('상단에서 테이블을 먼저 선택하세요.');
         return;
     }
     if (cart.length === 0) {
