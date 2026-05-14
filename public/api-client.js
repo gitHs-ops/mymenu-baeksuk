@@ -150,6 +150,13 @@ class APIClient {
         });
     }
 
+    async updateOrderItems(orderId, items, total) {
+        return this.request(`/api/orders/${orderId}/items`, {
+            method: 'PATCH',
+            body: JSON.stringify({ items, total }),
+        });
+    }
+
     async deleteCompletedOrders() {
         return this.request('/api/orders/completed/all', {
             method: 'DELETE',

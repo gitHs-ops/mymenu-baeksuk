@@ -177,6 +177,16 @@ function handleWebSocketMessage(data) {
             renderOrders();
             break;
 
+        case 'order_updated':
+            const updatedOrder = orders.find(o => o.id === data.orderId);
+            if (updatedOrder) {
+                updatedOrder.items = data.items;
+                updatedOrder.total = data.total;
+                updateStats();
+                renderOrders();
+            }
+            break;
+
         case 'completed_orders_cleared':
             // Remove completed orders
             orders = orders.filter(o => o.status !== 'completed');

@@ -501,6 +501,75 @@ app.patch('/api/orders/:id/status', async (req, res) => {
     }
 });
 
+// Replace order items (partial cancel from customer side)
+app.patch('/api/orders/:id/items', async (req, res) => {
+    const { id } = req.params;
+    const { items, total } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: 'Items must be a non-empty array' });
+    }
+
+    if (!USE_DATABASE) {
+        const order = memoryOrders.find(o => o.id === id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        if (order.status !== 'pending') {
+            return res.status(409).json({ error: 'Only pending orders can be modified' });
+        }
+        order.items = items;
+        order.total = total;
+
+        broadcast({
+            type: 'order_updated',
+            orderId: id,
+            items,
+            total
+        });
+        return res.json({ success: true });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const [rows] = await connection.query('SELECT status FROM orders WHERE id = ? FOR UPDATE', [id]);
+        if (rows.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        if (rows[0].status !== 'pending') {
+            await connection.rollback();
+            return res.status(409).json({ error: 'Only pending orders can be modified' });
+        }
+
+        await connection.query('DELETE FROM order_items WHERE order_id = ?', [id]);
+        for (const item of items) {
+            await connection.query(
+                'INSERT INTO order_items (order_id, item_name, price, quantity) VALUES (?, ?, ?, ?)',
+                [id, item.name, item.price, item.quantity]
+            );
+        }
+        await connection.query('UPDATE orders SET total = ? WHERE id = ?', [total, id]);
+
+        await connection.commit();
+
+        broadcast({
+            type: 'order_updated',
+            orderId: id,
+            items,
+            total
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error updating order items:', error);
+        res.status(500).json({ error: 'Failed to update order items' });
+    } finally {
+        connection.release();
+    }
+});
+
 // Delete order
 app.delete('/api/orders/:id', async (req, res) => {
     const { id } = req.params;
