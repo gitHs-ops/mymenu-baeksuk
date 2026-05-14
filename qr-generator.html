@@ -141,9 +141,10 @@
 
         .qr-card .table-info {
             margin-top: 8px;
-            font-size: 1.2em;
+            font-size: 0.9em;
             font-weight: bold;
             color: #667eea;
+            white-space: nowrap;
         }
 
         .instructions {
@@ -215,9 +216,10 @@
             }
 
             .qr-card .table-info {
-                font-size: 1.1em;
+                font-size: 0.8em;
                 color: #000;
                 margin-top: 4px;
+                white-space: nowrap;
             }
         }
     </style>
@@ -296,7 +298,7 @@
 
                 const prompt = document.createElement('div');
                 prompt.className = 'qr-card-prompt';
-                prompt.textContent = '폰카메라를 QR코드에 갖다대세요.';
+                prompt.innerHTML = '폰 카메라를 QR코드에<br>갖다 대세요.';
                 card.appendChild(prompt);
 
                 const qrWrap = document.createElement('div');
