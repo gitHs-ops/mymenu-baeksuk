@@ -129,6 +129,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeStaffCallConfirmation();
         }
     });
+
+    // Payment method modal
+    const paymentMethodModal = document.getElementById('paymentMethodModal');
+    document.getElementById('closePaymentMethod').addEventListener('click', () => {
+        paymentMethodModal.classList.remove('active');
+    });
+    paymentMethodModal.addEventListener('click', (e) => {
+        if (e.target === paymentMethodModal) paymentMethodModal.classList.remove('active');
+    });
+    document.querySelectorAll('.pay-method').forEach(btn => {
+        btn.addEventListener('click', () => {
+            paymentMethodModal.classList.remove('active');
+            startPayment(btn.dataset.method);
+        });
+    });
+
+    // Handle return from Toss (success/fail redirect)
+    handlePaymentReturn();
 });
 
 // Load menu items
@@ -334,28 +352,102 @@ function clearCart() {
     }
 }
 
-async function placeOrder() {
+// Open payment-method selection modal (prepayment flow)
+function placeOrder() {
     if (cart.length === 0) return;
-
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    const orderData = {
-        tableNumber: tableNumber,
-        items: cart,
-        total: total
-    };
+    document.getElementById('paymentAmount').textContent = total.toLocaleString('ko-KR');
+    closeCart();
+    document.querySelectorAll('.pay-method').forEach(b => b.disabled = false);
+    document.getElementById('paymentMethodModal').classList.add('active');
+}
+
+// Called when user picks a payment method
+async function startPayment(method) {
+    if (cart.length === 0) return;
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Disable all payment buttons to prevent double click
+    const buttons = document.querySelectorAll('.pay-method');
+    buttons.forEach(b => b.disabled = true);
 
     try {
-        const response = await apiClient.createOrder(orderData);
-        if (response.success) {
-            cart = [];
-            updateCartUI();
-            closeCart();
-            confirmModal.classList.add('active');
+        // 1) Create order on server (payment_status=pending, not yet broadcast)
+        const orderRes = await apiClient.createOrder({
+            tableNumber,
+            items: cart,
+            total,
+            paymentMethod: method,
+        });
+        if (!orderRes.success) throw new Error('order create failed');
+        const orderId = orderRes.orderId;
+
+        // 2) Preserve cart/table info across redirect (for restoring on success/fail)
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+            orderId, tableNumber, total, method, items: cart,
+        }));
+
+        // 3) Fetch Toss client key
+        const cfg = await apiClient.getConfig();
+        const tossPayments = TossPayments(cfg.tossClientKey);
+
+        // 4) Build URLs (include orderId for fail handling)
+        const base = location.origin + location.pathname + `?table=${tableNumber}`;
+        const successUrl = `${base}&payment=success`;
+        const failUrl    = `${base}&payment=fail`;
+
+        // 5) Request payment - redirects user to selected app
+        await tossPayments.requestPayment(method, {
+            amount: total,
+            orderId,
+            orderName: `테이블 ${tableNumber} 주문 (${cart.length}건)`,
+            customerName: `테이블${tableNumber}`,
+            successUrl,
+            failUrl,
+        });
+        // requestPayment redirects, so code below typically does not run
+    } catch (err) {
+        console.error('payment start error:', err);
+        // Toss SDK throws on user cancel too — show only on actual error
+        if (err && err.code && err.code !== 'USER_CANCEL') {
+            alert(`결제를 시작할 수 없습니다: ${err.message || ''}`);
         }
-    } catch (error) {
-        console.error('Error placing order:', error);
-        alert('주문에 실패했습니다. 다시 시도해주세요.');
+        buttons.forEach(b => b.disabled = false);
+    }
+}
+
+// After Toss redirects back, handle the result via URL params
+async function handlePaymentReturn() {
+    const params = new URLSearchParams(location.search);
+    const payment = params.get('payment');
+    if (!payment) return;
+
+    // Strip query so refresh doesn't re-run
+    const cleanUrl = `${location.origin}${location.pathname}?table=${tableNumber}`;
+
+    if (payment === 'success') {
+        const paymentKey = params.get('paymentKey');
+        const orderId    = params.get('orderId');
+        const amount     = params.get('amount');
+        try {
+            const r = await apiClient.confirmPayment({ paymentKey, orderId, amount: Number(amount) });
+            if (r.success) {
+                sessionStorage.removeItem('pendingOrder');
+                cart = [];
+                updateCartUI();
+                confirmModal.classList.add('active');
+            } else {
+                alert('결제 승인 실패');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('결제 승인 중 오류가 발생했습니다.');
+        }
+        history.replaceState(null, '', cleanUrl);
+    } else if (payment === 'fail') {
+        const msg = params.get('message') || '결제가 취소되었거나 실패했습니다.';
+        alert(msg);
+        history.replaceState(null, '', cleanUrl);
     }
 }
 

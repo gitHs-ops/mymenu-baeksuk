@@ -6,6 +6,7 @@
     <title>식당 주문 - 테이블 QR 오더</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
 </head>
 <body>
     <div class="container">
@@ -62,6 +63,39 @@
                 <div class="modal-actions">
                     <button class="btn btn-secondary" id="clearCart">전체 삭제</button>
                     <button class="btn btn-primary" id="orderButton">주문하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method Selection Modal -->
+        <div class="modal" id="paymentMethodModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>💳 결제수단 선택</h2>
+                    <button class="close-btn" id="closePaymentMethod">&times;</button>
+                </div>
+                <div class="payment-total">
+                    결제금액: <strong id="paymentAmount">0</strong>원
+                </div>
+                <div class="payment-methods">
+                    <button class="pay-method" data-method="카카오페이">
+                        <span class="pay-emoji">💛</span> 카카오페이
+                    </button>
+                    <button class="pay-method" data-method="네이버페이">
+                        <span class="pay-emoji">💚</span> 네이버페이
+                    </button>
+                    <button class="pay-method" data-method="토스페이">
+                        <span class="pay-emoji">💙</span> 토스페이
+                    </button>
+                    <button class="pay-method" data-method="페이코">
+                        <span class="pay-emoji">❤️</span> 페이코
+                    </button>
+                    <button class="pay-method" data-method="삼성페이">
+                        <span class="pay-emoji">🩶</span> 삼성페이
+                    </button>
+                    <button class="pay-method" data-method="카드">
+                        <span class="pay-emoji">💳</span> 신용/체크카드
+                    </button>
                 </div>
             </div>
         </div>
