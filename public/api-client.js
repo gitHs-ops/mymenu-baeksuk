@@ -137,6 +137,18 @@ class APIClient {
         });
     }
 
+    // Config & Payments
+    async getConfig() {
+        return this.request('/api/config');
+    }
+
+    async confirmPayment({ paymentKey, orderId, amount }) {
+        return this.request('/api/payment/confirm', {
+            method: 'POST',
+            body: JSON.stringify({ paymentKey, orderId, amount }),
+        });
+    }
+
     async updateOrderStatus(orderId, status) {
         return this.request(`/api/orders/${orderId}/status`, {
             method: 'PATCH',

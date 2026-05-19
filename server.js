@@ -226,6 +226,102 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Public config (client key for Toss Payments)
+// Falls back to Toss's public docs test key when env var is missing.
+app.get('/api/config', (req, res) => {
+    res.json({
+        tossClientKey: process.env.TOSS_CLIENT_KEY || 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm'
+    });
+});
+
+// Payment: confirm payment with Toss after successUrl redirect
+app.post('/api/payment/confirm', async (req, res) => {
+    const { paymentKey, orderId, amount } = req.body;
+    if (!paymentKey || !orderId || amount == null) {
+        return res.status(400).json({ error: 'paymentKey, orderId, amount are required' });
+    }
+
+    const secretKey = process.env.TOSS_SECRET_KEY || 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
+
+    // 1) Validate amount against the stored order (anti-tamper)
+    let storedOrder = null;
+    if (USE_DATABASE) {
+        const [[row]] = await pool.query(
+            'SELECT id, table_number, total, payment_status FROM orders WHERE id = ?', [orderId]
+        );
+        storedOrder = row;
+    } else {
+        storedOrder = memoryOrders.find(o => o.id === orderId) || null;
+    }
+    if (!storedOrder) {
+        return res.status(404).json({ error: 'order not found' });
+    }
+    if (Number(storedOrder.total) !== Number(amount)) {
+        return res.status(400).json({ error: 'amount mismatch' });
+    }
+    if (storedOrder.payment_status === 'paid') {
+        return res.json({ success: true, alreadyPaid: true });
+    }
+
+    // 2) Call Toss confirm API
+    let tossData;
+    try {
+        const resp = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
+            method: 'POST',
+            headers: {
+                Authorization: 'Basic ' + Buffer.from(secretKey + ':').toString('base64'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ paymentKey, orderId, amount })
+        });
+        tossData = await resp.json();
+        if (!resp.ok) {
+            console.error('Toss confirm failed:', tossData);
+            // Mark failed in DB
+            if (USE_DATABASE) {
+                await pool.query("UPDATE orders SET payment_status='failed' WHERE id=?", [orderId]);
+            } else {
+                storedOrder.payment_status = 'failed';
+            }
+            return res.status(400).json({ error: 'payment confirm failed', details: tossData });
+        }
+    } catch (err) {
+        console.error('Toss API error:', err);
+        return res.status(502).json({ error: 'failed to reach Toss', details: err.message });
+    }
+
+    // 3) Update DB to paid
+    const paidAt = new Date();
+    const method = tossData.method || null;
+    if (USE_DATABASE) {
+        await pool.query(
+            "UPDATE orders SET payment_status='paid', payment_key=?, payment_method=?, paid_at=? WHERE id=?",
+            [paymentKey, method, paidAt, orderId]
+        );
+    } else {
+        storedOrder.payment_status = 'paid';
+        storedOrder.payment_key = paymentKey;
+        storedOrder.payment_method = method;
+        storedOrder.paid_at = paidAt.toISOString();
+    }
+
+    // 4) Fetch full order (with items) and broadcast to admin
+    let fullOrder;
+    if (USE_DATABASE) {
+        const [[row]] = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+        const [items] = await pool.query(
+            'SELECT item_name as name, price, quantity FROM order_items WHERE order_id = ?',
+            [orderId]
+        );
+        fullOrder = { ...row, items };
+    } else {
+        fullOrder = storedOrder;
+    }
+    broadcast({ type: 'new_order', order: fullOrder });
+
+    res.json({ success: true, order: fullOrder });
+});
+
 // Get all orders
 app.get('/api/orders', async (req, res) => {
     // Compute KST [start, end) UTC range for a YYYY-MM-DD KST date
@@ -239,6 +335,11 @@ app.get('/api/orders', async (req, res) => {
         // Use in-memory storage
         const { status, date } = req.query;
         let filteredOrders = memoryOrders;
+
+        // Exclude orders not yet paid (pending/failed payment)
+        filteredOrders = filteredOrders.filter(o =>
+            !o.payment_status || o.payment_status === 'paid' || o.payment_status === 'refunded'
+        );
 
         if (date) {
             const { startMs, endMs } = kstRange(date);
@@ -261,7 +362,8 @@ app.get('/api/orders', async (req, res) => {
         // Get orders
         let orderQuery = 'SELECT * FROM orders';
         let orderParams = [];
-        const conditions = [];
+        // Always exclude unpaid orders (pending/failed payment)
+        const conditions = ["(payment_status IS NULL OR payment_status IN ('paid','refunded'))"];
 
         if (date) {
             // Compare in KST: created_at (UTC) shifted +9h, then take DATE
@@ -372,10 +474,15 @@ app.get('/api/orders/:id', async (req, res) => {
 });
 
 // Create new order
+// When `paymentMethod` is provided, the order is created in payment_status='pending'
+// and NOT broadcast to admin yet. Broadcast happens after /api/payment/confirm.
+// Legacy callers (no paymentMethod) keep the old behavior: paid + broadcast.
 app.post('/api/orders', async (req, res) => {
-    const { id: clientId, tableNumber, items, total, timestamp } = req.body;
+    const { id: clientId, tableNumber, items, total, timestamp, paymentMethod } = req.body;
     const id = clientId || ('order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
-    
+    const isPrepay = !!paymentMethod;
+    const paymentStatus = isPrepay ? 'pending' : 'paid';
+
     if (!USE_DATABASE) {
         // Use in-memory storage
         const newOrder = {
@@ -384,34 +491,35 @@ app.post('/api/orders', async (req, res) => {
             items,
             total,
             status: 'pending',
+            payment_status: paymentStatus,
+            payment_method: paymentMethod || null,
             created_at: timestamp || new Date().toISOString()
         };
-        
+
         memoryOrders.unshift(newOrder);
-        
-        // Broadcast new order to all connected clients
-        broadcast({
-            type: 'new_order',
-            order: newOrder
-        });
-        
-        return res.status(201).json({ success: true, orderId: id });
+
+        // Only broadcast if already paid (legacy flow)
+        if (!isPrepay) {
+            broadcast({ type: 'new_order', order: newOrder });
+        }
+
+        return res.status(201).json({ success: true, orderId: id, amount: total });
     }
-    
+
     const connection = await pool.getConnection();
-    
+
     try {
         await connection.beginTransaction();
-        
+
         // Convert ISO string to MySQL datetime format
         const createdAt = timestamp ? new Date(timestamp) : new Date();
-        
+
         // Insert order
         await connection.query(
-            'INSERT INTO orders (id, table_number, total, status, created_at) VALUES (?, ?, ?, ?, ?)',
-            [id, tableNumber, total, 'pending', createdAt]
+            'INSERT INTO orders (id, table_number, total, status, payment_status, payment_method, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [id, tableNumber, total, 'pending', paymentStatus, paymentMethod || null, createdAt]
         );
-        
+
         // Insert order items
         for (const item of items) {
             await connection.query(
@@ -419,23 +527,26 @@ app.post('/api/orders', async (req, res) => {
                 [id, item.name, item.price, item.quantity]
             );
         }
-        
+
         await connection.commit();
-        
-        // Broadcast new order to all connected clients
-        broadcast({
-            type: 'new_order',
-            order: {
-                id,
-                table_number: tableNumber,
-                items,
-                total,
-                status: 'pending',
-                created_at: createdAt.toISOString()
-            }
-        });
-        
-        res.status(201).json({ success: true, orderId: id });
+
+        // Only broadcast if already paid (legacy flow)
+        if (!isPrepay) {
+            broadcast({
+                type: 'new_order',
+                order: {
+                    id,
+                    table_number: tableNumber,
+                    items,
+                    total,
+                    status: 'pending',
+                    payment_status: 'paid',
+                    created_at: createdAt.toISOString()
+                }
+            });
+        }
+
+        res.status(201).json({ success: true, orderId: id, amount: total });
     } catch (error) {
         await connection.rollback();
         console.error('Error creating order:', error);

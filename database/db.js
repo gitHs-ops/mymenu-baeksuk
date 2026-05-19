@@ -41,16 +41,38 @@ async function initializeDatabase() {
                 table_number INT NOT NULL,
                 total DECIMAL(10, 2) NOT NULL,
                 status ENUM('pending', 'cooking', 'completed', 'cancelled') DEFAULT 'pending',
+                payment_status ENUM('pending','paid','failed','refunded') DEFAULT 'paid',
+                payment_method VARCHAR(50) NULL,
+                payment_key VARCHAR(200) NULL,
+                paid_at TIMESTAMP NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 completed_at TIMESTAMP NULL,
-                cleared_at TIMESTAMP NULL,
                 INDEX idx_table_number (table_number),
                 INDEX idx_status (status),
-                INDEX idx_created_at (created_at),
-                INDEX idx_cleared_at (cleared_at)
+                INDEX idx_payment_status (payment_status),
+                INDEX idx_created_at (created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         `);
+
+        // Migration: add payment columns to existing orders table (idempotent)
+        const paymentColumns = [
+            { name: 'payment_status', def: "ENUM('pending','paid','failed','refunded') DEFAULT 'paid'" },
+            { name: 'payment_method', def: 'VARCHAR(50) NULL' },
+            { name: 'payment_key',    def: 'VARCHAR(200) NULL' },
+            { name: 'paid_at',        def: 'TIMESTAMP NULL' },
+        ];
+        for (const col of paymentColumns) {
+            try {
+                await connection.query(`ALTER TABLE orders ADD COLUMN ${col.name} ${col.def}`);
+                console.log(`✅ orders.${col.name} column added`);
+            } catch (e) {
+                // already exists - ignore
+            }
+        }
+        try {
+            await connection.query("ALTER TABLE orders ADD INDEX idx_payment_status (payment_status)");
+        } catch (e) { /* exists */ }
 
         // Create order_items table
         await connection.query(`
@@ -101,15 +123,6 @@ async function initializeDatabase() {
         try {
             await connection.query('ALTER TABLE menu_items ADD COLUMN sort_order INT DEFAULT 0 AFTER is_available');
             console.log('✅ sort_order column added');
-        } catch (e) {
-            // 이미 존재하면 무시
-        }
-
-        // 기존 orders 테이블에 cleared_at 컬럼 없을 경우 추가 (테이블 세션 마감용)
-        try {
-            await connection.query('ALTER TABLE orders ADD COLUMN cleared_at TIMESTAMP NULL AFTER completed_at');
-            await connection.query('CREATE INDEX idx_cleared_at ON orders (cleared_at)');
-            console.log('✅ cleared_at column added');
         } catch (e) {
             // 이미 존재하면 무시
         }
