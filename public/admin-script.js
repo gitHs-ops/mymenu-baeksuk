@@ -349,7 +349,7 @@ function renderOrders() {
         group.className = 'table-group';
 
         const tableTotal = tableOrders.reduce((sum, o) => sum + parseFloat(o.total), 0);
-        const hasCompleted = tableOrders.some(o => o.status === 'completed');
+        const hasCompleted = tableOrders.some(o => o.status === 'completed' && !o.cleared_at);
         const allTerminal = tableOrders.every(o => o.status === 'completed' || o.status === 'cancelled');
 
         const header = document.createElement('div');
@@ -715,6 +715,7 @@ async function clearTable(tableNumber) {
     }
     try {
         await apiClient.clearTable(tableNumber);
+        await loadOrders();
     } catch (error) {
         console.error('Error clearing table:', error);
         alert('테이블 마감에 실패했습니다.');
