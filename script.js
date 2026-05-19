@@ -1,6 +1,8 @@
 // Cart state
 let cart = [];
 let tableNumber = getTableNumberFromURL() || Math.floor(Math.random() * 20) + 1;
+let pendingOrderId = null;
+let pendingOrderTotal = 0;
 
 // Get table number from URL parameter
 function getTableNumberFromURL() {
@@ -47,8 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clear cart
     clearCartBtn.addEventListener('click', clearCart);
 
-    // Order button -> open payment method modal
-    orderButton.addEventListener('click', openPaymentMethodModal);
+    // Order button
+    orderButton.addEventListener('click', placeOrder);
 
     // Close payment method modal
     document.getElementById('closePaymentMethod').addEventListener('click', closePaymentMethodModal);
@@ -61,8 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => startPayment(btn.dataset.method));
     });
 
-    // Close confirmation
+    // Close confirmation (나중에)
     closeConfirm.addEventListener('click', closeConfirmation);
+
+    // 결제하기 버튼 → 결제수단 모달
+    document.getElementById('gotoPaymentBtn').addEventListener('click', () => {
+        closeConfirmation();
+        openPaymentMethodModal();
+    });
 
     // Close modal when clicking outside
     cartModal.addEventListener('click', (e) => {
@@ -213,30 +221,18 @@ function closeCart() {
     cartModal.classList.remove('active');
 }
 
-// Open payment method modal
-function openPaymentMethodModal() {
+// Place order (directly to server, then ask for prepayment)
+async function placeOrder() {
     if (cart.length === 0) {
         alert('장바구니가 비어있습니다!');
         return;
     }
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    document.getElementById('paymentAmount').textContent = total.toLocaleString('ko-KR');
-    document.getElementById('paymentMethodModal').classList.add('active');
-}
 
-function closePaymentMethodModal() {
-    document.getElementById('paymentMethodModal').classList.remove('active');
-}
-
-// Initiate Toss payment for selected method
-async function startPayment(method) {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const orderId = 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-    // 1. Create pending order on server
-    let res;
     try {
-        res = await fetch('/api/orders', {
+        const res = await fetch('/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -244,27 +240,46 @@ async function startPayment(method) {
                 tableNumber,
                 items: cart.map(item => ({...item})),
                 total,
-                timestamp: new Date().toISOString(),
-                paymentMethod: method
+                timestamp: new Date().toISOString()
             })
         });
+        if (!res.ok) throw new Error('server error');
     } catch (e) {
-        alert('서버 연결 오류. 다시 시도해주세요.');
-        return;
-    }
-    if (!res.ok) {
-        alert('주문 생성 실패. 다시 시도해주세요.');
+        alert('주문 전송 실패. 다시 시도해주세요.');
         return;
     }
 
-    // 2. Fetch Toss client key
+    // 결제용으로 orderId/total 보관
+    pendingOrderId = orderId;
+    pendingOrderTotal = total;
+
+    closeCart();
+    confirmModal.classList.add('active');
+
+    setTimeout(() => {
+        cart = [];
+        updateCart();
+        saveCart();
+    }, 500);
+}
+
+function openPaymentMethodModal() {
+    document.getElementById('paymentAmount').textContent = pendingOrderTotal.toLocaleString('ko-KR');
+    document.getElementById('paymentMethodModal').classList.add('active');
+}
+
+function closePaymentMethodModal() {
+    document.getElementById('paymentMethodModal').classList.remove('active');
+}
+
+async function startPayment(method) {
+    if (!pendingOrderId) return;
+
     const { tossClientKey } = await (await fetch('/api/config')).json();
-
-    // 3. Launch Toss payment widget
     const tossPayments = TossPayments(tossClientKey);
     tossPayments.requestPayment(method, {
-        amount: total,
-        orderId,
+        amount: pendingOrderTotal,
+        orderId: pendingOrderId,
         orderName: `테이블 ${tableNumber} 주문`,
         customerName: `테이블 ${tableNumber}`,
         successUrl: window.location.origin + '/payment-success.html',
