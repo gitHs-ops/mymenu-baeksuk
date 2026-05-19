@@ -47,8 +47,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clear cart
     clearCartBtn.addEventListener('click', clearCart);
 
-    // Order button
-    orderButton.addEventListener('click', placeOrder);
+    // Order button -> open payment method modal
+    orderButton.addEventListener('click', openPaymentMethodModal);
+
+    // Close payment method modal
+    document.getElementById('closePaymentMethod').addEventListener('click', closePaymentMethodModal);
+    document.getElementById('paymentMethodModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('paymentMethodModal')) closePaymentMethodModal();
+    });
+
+    // Payment method buttons
+    document.querySelectorAll('.pay-method').forEach(btn => {
+        btn.addEventListener('click', () => startPayment(btn.dataset.method));
+    });
 
     // Close confirmation
     closeConfirm.addEventListener('click', closeConfirmation);
@@ -202,45 +213,63 @@ function closeCart() {
     cartModal.classList.remove('active');
 }
 
-// Place order
-function placeOrder() {
+// Open payment method modal
+function openPaymentMethodModal() {
     if (cart.length === 0) {
         alert('장바구니가 비어있습니다!');
         return;
     }
-
-    // Calculate total
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    document.getElementById('paymentAmount').textContent = total.toLocaleString('ko-KR');
+    document.getElementById('paymentMethodModal').classList.add('active');
+}
 
-    // Create order summary with unique ID
-    const orderSummary = {
-        id: 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        tableNumber: tableNumber,
-        items: cart.map(item => ({...item})), // Deep copy
-        total: total,
-        timestamp: new Date().toISOString(),
-        status: 'pending'
-    };
+function closePaymentMethodModal() {
+    document.getElementById('paymentMethodModal').classList.remove('active');
+}
 
-    // Save order to localStorage for admin to receive
-    const existingOrders = localStorage.getItem('restaurantOrders');
-    let orders = existingOrders ? JSON.parse(existingOrders) : [];
-    orders.push(orderSummary);
-    localStorage.setItem('restaurantOrders', JSON.stringify(orders));
+// Initiate Toss payment for selected method
+async function startPayment(method) {
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const orderId = 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-    // Log order
-    console.log('주문 내역:', orderSummary);
+    // 1. Create pending order on server
+    let res;
+    try {
+        res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: orderId,
+                tableNumber,
+                items: cart.map(item => ({...item})),
+                total,
+                timestamp: new Date().toISOString(),
+                paymentMethod: method
+            })
+        });
+    } catch (e) {
+        alert('서버 연결 오류. 다시 시도해주세요.');
+        return;
+    }
+    if (!res.ok) {
+        alert('주문 생성 실패. 다시 시도해주세요.');
+        return;
+    }
 
-    // Show confirmation
-    closeCart();
-    confirmModal.classList.add('active');
+    // 2. Fetch Toss client key
+    const { tossClientKey } = await (await fetch('/api/config')).json();
 
-    // Clear cart after order
-    setTimeout(() => {
-        cart = [];
-        updateCart();
-        saveCart();
-    }, 500);
+    // 3. Launch Toss payment widget
+    const tossPayments = TossPayments(tossClientKey);
+    tossPayments.requestPayment(method, {
+        amount: total,
+        orderId,
+        orderName: `테이블 ${tableNumber} 주문`,
+        customerName: `테이블 ${tableNumber}`,
+        successUrl: window.location.origin + '/payment-success.html',
+        failUrl: window.location.origin + '/payment-fail.html'
+    });
 }
 
 // Close confirmation modal

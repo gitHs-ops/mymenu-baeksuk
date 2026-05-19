@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 완료</title>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5; }
+        .card { background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 360px; width: 90%; }
+        .icon { font-size: 64px; margin-bottom: 16px; }
+        h1 { font-size: 24px; color: #333; margin: 0 0 8px; }
+        p { color: #666; margin: 0 0 24px; }
+        .amount { font-size: 28px; font-weight: 700; color: #0064ff; margin: 16px 0; }
+        .btn { display: block; background: #0064ff; color: white; border: none; border-radius: 10px; padding: 14px 24px; font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; width: 100%; box-sizing: border-box; }
+        .error { color: #e53e3e; font-size: 14px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="icon" id="icon">⏳</div>
+    <h1 id="title">결제 확인 중...</h1>
+    <p id="desc">잠시만 기다려주세요</p>
+    <div class="amount" id="amount" style="display:none"></div>
+    <a class="btn" id="backBtn" style="display:none" href="javascript:history.back()">메뉴로 돌아가기</a>
+    <div class="error" id="errMsg"></div>
+</div>
+<script>
+(async () => {
+    const params = new URLSearchParams(location.search);
+    const paymentKey = params.get('paymentKey');
+    const orderId = params.get('orderId');
+    const amount = Number(params.get('amount'));
+
+    if (!paymentKey || !orderId || !amount) {
+        document.getElementById('icon').textContent = '❌';
+        document.getElementById('title').textContent = '잘못된 접근';
+        document.getElementById('desc').textContent = '결제 정보가 없습니다.';
+        document.getElementById('backBtn').style.display = 'block';
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/payment/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentKey, orderId, amount })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            document.getElementById('icon').textContent = '✅';
+            document.getElementById('title').textContent = '결제 완료!';
+            document.getElementById('desc').textContent = '주문이 접수되었습니다.';
+            document.getElementById('amount').textContent = amount.toLocaleString('ko-KR') + '원';
+            document.getElementById('amount').style.display = 'block';
+            document.getElementById('backBtn').textContent = '메뉴로 돌아가기';
+            // Extract table number from orderId prefix or use referrer
+            const tableParam = new URLSearchParams(document.referrer.split('?')[1] || '').get('table') || '';
+            document.getElementById('backBtn').href = '/' + (tableParam ? '?table=' + tableParam : '');
+            document.getElementById('backBtn').style.display = 'block';
+        } else {
+            throw new Error(data.error || '결제 확인 실패');
+        }
+    } catch (e) {
+        document.getElementById('icon').textContent = '❌';
+        document.getElementById('title').textContent = '결제 확인 실패';
+        document.getElementById('desc').textContent = '결제는 되었으나 확인 중 오류가 발생했습니다.';
+        document.getElementById('errMsg').textContent = e.message;
+        document.getElementById('backBtn').style.display = 'block';
+    }
+})();
+</script>
+</body>
+</html>
