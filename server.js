@@ -336,11 +336,6 @@ app.get('/api/orders', async (req, res) => {
         const { status, date } = req.query;
         let filteredOrders = memoryOrders;
 
-        // Exclude orders not yet paid (pending/failed payment)
-        filteredOrders = filteredOrders.filter(o =>
-            !o.payment_status || o.payment_status === 'paid' || o.payment_status === 'refunded'
-        );
-
         if (date) {
             const { startMs, endMs } = kstRange(date);
             filteredOrders = filteredOrders.filter(o => {
@@ -362,8 +357,7 @@ app.get('/api/orders', async (req, res) => {
         // Get orders
         let orderQuery = 'SELECT * FROM orders';
         let orderParams = [];
-        // Always exclude unpaid orders (pending/failed payment)
-        const conditions = ["(payment_status IS NULL OR payment_status IN ('paid','refunded'))"];
+        const conditions = [];
 
         if (date) {
             // Compare in KST: created_at (UTC) shifted +9h, then take DATE
