@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>테이블 오더 시스템 제안서 — 감성 소프트웨어</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f0f4f4;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .page {
+    width: 680px;
+    background: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 48px rgba(8,98,102,0.15), 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .top-bar { background: #086266; padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .top-bar .co { font-size: 13px; color: #9adcda; font-weight: 400; letter-spacing: .08em; }
+  .top-bar .tag { font-size: 10px; color: rgba(154,220,218,.6); letter-spacing: .2em; font-weight: 300; }
+
+  .hero { background: linear-gradient(160deg, #086266 0%, #0a8a8f 55%, #9adcda 100%); padding: 36px 48px 32px; position: relative; overflow: hidden; }
+  .hero-bg-c1 { position: absolute; width: 320px; height: 320px; border-radius: 50%; border: 1px solid rgba(255,255,255,.08); top: -100px; right: -80px; }
+  .hero-bg-c2 { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 1px solid rgba(255,255,255,.06); top: -30px; right: 20px; }
+  .hero-label { font-size: 11px; color: rgba(255,255,255,.55); letter-spacing: .25em; font-weight: 300; margin-bottom: 10px; }
+  .hero h1 { font-size: 38px; font-weight: 900; color: #fff; letter-spacing: .04em; line-height: 1; margin-bottom: 6px; white-space: nowrap; }
+  .hero h2 { font-size: 15px; font-weight: 300; color: rgba(255,255,255,.7); letter-spacing: .12em; margin-bottom: 16px; }
+  .hero-desc { font-size: 13px; color: rgba(255,255,255,.82); font-weight: 400; line-height: 1.7; max-width: 420px; }
+  .badge-row { display: flex; gap: 8px; margin-top: 18px; }
+  .badge { font-size: 10px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.85); font-weight: 300; letter-spacing: .04em; }
+
+  .body { padding: 24px 48px; }
+  .section-title { font-size: 11px; font-weight: 700; color: #086266; letter-spacing: .2em; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: #9adcda; }
+
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .feat-card { background: #f4fafa; border: 0.5px solid #c8e4e4; border-radius: 10px; padding: 14px 16px; }
+  .feat-icon { font-size: 20px; color: #086266; margin-bottom: 8px; }
+  .feat-title { font-size: 13px; font-weight: 700; color: #086266; margin-bottom: 4px; letter-spacing: .02em; }
+  .feat-desc { font-size: 12px; color: #555; font-weight: 400; line-height: 1.6; }
+
+  .cost-section {
+    background: linear-gradient(135deg, #086266 0%, #0a8a8f 100%);
+    border-radius: 12px; padding: 20px 28px; margin-bottom: 24px;
+    display: flex; justify-content: space-around; align-items: center;
+    position: relative; overflow: hidden;
+  }
+  .cost-section::before { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 1px solid rgba(255,255,255,.08); top: -80px; right: -40px; }
+  .cost-item { text-align: center; position: relative; z-index: 1; }
+  .cost-item + .cost-item::before { content: ''; position: absolute; left: -1px; top: 10%; height: 80%; width: 0.5px; background: rgba(255,255,255,.25); }
+  .cost-num { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: .04em; margin-bottom: 4px; }
+  .cost-num span { font-size: 13px; font-weight: 300; color: rgba(255,255,255,.7); display: block; margin-top: 2px; letter-spacing: .06em; }
+
+  .process { display: flex; gap: 0; margin-bottom: 24px; position: relative; }
+  .process::before { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; height: 1px; background: #9adcda; z-index: 0; }
+  .step { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; z-index: 1; }
+  .step-num { width: 40px; height: 40px; border-radius: 50%; background: #086266; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  .step-label { font-size: 11px; font-weight: 500; color: #086266; letter-spacing: .04em; }
+  .step-sub { font-size: 10px; color: #888; margin-top: 2px; font-weight: 300; }
+
+  .divider-line { height: 1px; background: linear-gradient(90deg, #9adcda, #086266, #9adcda); margin: 0 0 20px; }
+  .contact-row { display: flex; justify-content: space-between; align-items: flex-end; }
+  .contact-left .co-name { font-size: 16px; font-weight: 700; color: #086266; letter-spacing: .08em; margin-bottom: 6px; }
+  .contact-left .co-en { font-size: 11px; font-weight: 300; color: #6b9e9f; letter-spacing: .15em; margin-bottom: 10px; }
+  .contact-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 11.5px; color: #2d6667; }
+  .contact-item i { font-size: 14px; color: #086266; }
+  .contact-right { text-align: right; }
+  .rep-name { font-size: 18px; font-weight: 900; color: #086266; letter-spacing: .2em; margin-bottom: 2px; }
+  .rep-title { font-size: 10px; font-weight: 300; color: #6b9e9f; letter-spacing: .15em; }
+
+  .bottom-bar { background: #086266; padding: 8px 32px; text-align: center; }
+  .bottom-bar p { font-size: 10px; color: rgba(154,220,218,.6); letter-spacing: .08em; font-weight: 300; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; width: 100%; }
+    @page { size: A4; margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-bar">
+    <span class="co">감성 소프트웨어</span>
+    <span class="tag">BUSINESS PROPOSAL</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-bg-c1"></div>
+    <div class="hero-bg-c2"></div>
+    <p class="hero-label">TABLE ORDER SYSTEM</p>
+    <h1>테이블 오더 시스템</h1>
+    <h2>스마트 외식 운영의 새로운 기준</h2>
+    <p class="hero-desc">AI 기술로 완성하는 스마트 외식 운영 솔루션.<br>주문부터 결제까지, 효율과 고객 경험을 동시에 혁신합니다.</p>
+    <div class="badge-row">
+      <span class="badge">AI 컨설팅 서비스</span>
+      <span class="badge">바이브 코딩 대행</span>
+      <span class="badge">홈페이지 제작</span>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <p class="section-title">핵심 기능</p>
+    <div class="features">
+      <div class="feat-card">
+        <i class="ti ti-qrcode feat-icon" aria-hidden="true"></i>
+        <p class="feat-title">QR코드 주문 시스템</p>
+        <p class="feat-desc">QR 스캔으로 메뉴 선택·주문·결제. 서버 호출 없이 빠른 처리.</p>
+      </div>
+      <div class="feat-card">
+        <i class="ti ti-brain feat-icon" aria-hidden="true"></i>
+        <p class="feat-title">AI 메뉴 추천</p>
+        <p class="feat-desc">고객 주문 패턴 분석으로 인기 메뉴 및 추가 주문 자동 추천.</p>
+      </div>
+      <div class="feat-card">
+        <i class="ti ti-chart-bar feat-icon" aria-hidden="true"></i>
+        <p class="feat-title">실시간 매출 분석</p>
+        <p class="feat-desc">시간대·메뉴별 매출 현황을 대시보드로 즉시 확인.</p>
+      </div>
+      <div class="feat-card">
+        <i class="ti ti-bell feat-icon" aria-hidden="true"></i>
+        <p class="feat-title">주방 연동 알림</p>
+        <p class="feat-desc">주문 즉시 주방 디스플레이 전송, 오더 누락 제로.</p>
+      </div>
+    </div>
+
+    <p class="section-title">도입 비용</p>
+    <div class="cost-section">
+      <div class="cost-item">
+        <p class="cost-num">도입비용 무료<span>ZERO SETUP COST</span></p>
+      </div>
+      <div class="cost-item">
+        <p class="cost-num">운영비 거의 무료<span>NEAR-ZERO RUNNING COST</span></p>
+      </div>
+      <div class="cost-item">
+        <p class="cost-num">인건비 절감<span>MONTHLY LABOR SAVING</span></p>
+      </div>
+    </div>
+
+    <p class="section-title">도입 프로세스</p>
+    <div class="process">
+      <div class="step">
+        <div class="step-num">1</div>
+        <p class="step-label">상담·분석</p>
+        <p class="step-sub">현장 진단</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p class="step-label">설계·개발</p>
+        <p class="step-sub">맞춤 구축</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p class="step-label">설치·교육</p>
+        <p class="step-sub">현장 세팅</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p class="step-label">운영·유지보수</p>
+        <p class="step-sub">상시 지원</p>
+      </div>
+    </div>
+
+    <div class="divider-line"></div>
+
+    <div class="contact-row">
+      <div class="contact-left">
+        <p class="co-name">감성 소프트웨어</p>
+        <p class="co-en">GAMSUNG SOFTWARE</p>
+        <div class="contact-item"><i class="ti ti-phone" aria-hidden="true"></i><span>010-2698-9056</span></div>
+        <div class="contact-item"><i class="ti ti-mail" aria-hidden="true"></i><span>khsq2011@gmail.com</span></div>
+        <div class="contact-item"><i class="ti ti-map-pin" aria-hidden="true"></i><span>포항시 중성로 66, 가-512</span></div>
+      </div>
+      <div class="contact-right">
+        <p class="rep-name">김 현 수</p>
+        <p class="rep-title">대표 CEO</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-bar">
+    <p>© 2025 감성 소프트웨어  |  본 제안서의 모든 내용은 저작권법의 보호를 받습니다.</p>
+  </div>
+
+</div>
+</body>
+</html>

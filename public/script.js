@@ -1,6 +1,8 @@
 // Cart state
 let cart = [];
 let tableNumber = getTableNumberFromURL() || Math.floor(Math.random() * 20) + 1;
+let pendingOrderId = null;
+let pendingOrderTotal = 0;
 
 const CATEGORY_ICONS = {
     '탕수육': '🥘',
@@ -145,8 +147,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
+    // 결제하기 버튼 → 결제수단 모달
+    document.getElementById('gotoPaymentBtn').addEventListener('click', () => {
+        closeConfirmation();
+        document.getElementById('paymentAmount').textContent = pendingOrderTotal.toLocaleString('ko-KR');
+        document.getElementById('paymentMethodModal').classList.add('active');
+    });
+
     // Handle return from Toss (success/fail redirect)
     handlePaymentReturn();
+
+    // Register table session
+    initSession();
 });
 
 // Load menu items
@@ -352,63 +364,66 @@ function clearCart() {
     }
 }
 
-// Open payment-method selection modal (prepayment flow)
-function placeOrder() {
+// Place order → server → show prepayment prompt
+async function placeOrder() {
     if (cart.length === 0) return;
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    document.getElementById('paymentAmount').textContent = total.toLocaleString('ko-KR');
+    const orderId = 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+    try {
+        const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: orderId,
+                tableNumber,
+                items: cart.map(item => ({...item})),
+                total,
+                timestamp: new Date().toISOString(),
+                sessionToken: sessionStorage.getItem('sessionToken')
+            })
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            alert(err.error || '주문 전송 실패. 다시 시도해주세요.');
+            return;
+        }
+    } catch (e) {
+        alert('주문 전송 실패. 다시 시도해주세요.');
+        return;
+    }
+
+    pendingOrderId = orderId;
+    pendingOrderTotal = total;
+
     closeCart();
-    document.querySelectorAll('.pay-method').forEach(b => b.disabled = false);
-    document.getElementById('paymentMethodModal').classList.add('active');
+    cart = [];
+    updateCartUI();
+    confirmModal.classList.add('active');
 }
 
 // Called when user picks a payment method
 async function startPayment(method) {
-    if (cart.length === 0) return;
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    if (!pendingOrderId) return;
 
-    // Disable all payment buttons to prevent double click
     const buttons = document.querySelectorAll('.pay-method');
     buttons.forEach(b => b.disabled = true);
 
     try {
-        // 1) Create order on server (payment_status=pending, not yet broadcast)
-        const orderRes = await apiClient.createOrder({
-            tableNumber,
-            items: cart,
-            total,
-            paymentMethod: method,
-        });
-        if (!orderRes.success) throw new Error('order create failed');
-        const orderId = orderRes.orderId;
-
-        // 2) Preserve cart/table info across redirect (for restoring on success/fail)
-        sessionStorage.setItem('pendingOrder', JSON.stringify({
-            orderId, tableNumber, total, method, items: cart,
-        }));
-
-        // 3) Fetch Toss client key
         const cfg = await apiClient.getConfig();
         const tossPayments = TossPayments(cfg.tossClientKey);
 
-        // 4) Build URLs (include orderId for fail handling)
         const base = location.origin + location.pathname + `?table=${tableNumber}`;
-        const successUrl = `${base}&payment=success`;
-        const failUrl    = `${base}&payment=fail`;
-
-        // 5) Request payment - redirects user to selected app
         await tossPayments.requestPayment(method, {
-            amount: total,
-            orderId,
-            orderName: `테이블 ${tableNumber} 주문 (${cart.length}건)`,
+            amount: pendingOrderTotal,
+            orderId: pendingOrderId,
+            orderName: `테이블 ${tableNumber} 주문`,
             customerName: `테이블${tableNumber}`,
-            successUrl,
-            failUrl,
+            successUrl: `${base}&payment=success`,
+            failUrl:    `${base}&payment=fail`,
         });
-        // requestPayment redirects, so code below typically does not run
     } catch (err) {
         console.error('payment start error:', err);
-        // Toss SDK throws on user cancel too — show only on actual error
         if (err && err.code && err.code !== 'USER_CANCEL') {
             alert(`결제를 시작할 수 없습니다: ${err.message || ''}`);
         }
@@ -453,6 +468,20 @@ async function handlePaymentReturn() {
 
 function closeConfirmation() {
     confirmModal.classList.remove('active');
+}
+
+async function initSession() {
+    const token = sessionStorage.getItem('sessionToken');
+    const tokenTable = parseInt(sessionStorage.getItem('sessionTable'));
+    if (token && tokenTable === tableNumber) return;
+    try {
+        const res = await fetch(`/api/tables/${tableNumber}/session`, { method: 'POST' });
+        const data = await res.json();
+        sessionStorage.setItem('sessionToken', data.sessionToken);
+        sessionStorage.setItem('sessionTable', tableNumber);
+    } catch (e) {
+        console.error('세션 등록 실패', e);
+    }
 }
 
 // Order History

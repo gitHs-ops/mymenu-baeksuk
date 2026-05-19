@@ -1,7 +1,32 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npm install *)",
+      "Bash(node build_manual_docx.js)",
+      "Bash(python \"C:\\\\Users\\\\user\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\ba910bfe-b241-480f-addf-79f9df42be78\\\\c3f93df4-9edf-4587-82c0-d82c189aafe9\\\\skills\\\\docx\\\\scripts\\\\office\\\\validate.py\" \"C:\\\\myPrjt01\\\\mymenu01\\\\사용자매뉴얼.docx\")",
+      "Bash(python -c \"import zipfile; z = zipfile.ZipFile\\('사용자매뉴얼.docx'\\); print\\('Valid ZIP'\\); print\\('Files:', len\\(z.namelist\\(\\)\\)\\); print\\('Size:', __import__\\('os'\\).path.getsize\\('사용자매뉴얼.docx'\\), 'bytes'\\)\")",
+      "Bash(where soffice *)",
+      "Bash(where libreoffice *)",
+      "Read(//c/Program Files/LibreOffice/program/**)",
+      "Read(//c/Program Files \\(x86\\)/LibreOffice/program/**)",
+      "Bash(\"C:\\\\Program Files\\\\LibreOffice\\\\program\\\\soffice.exe\" --headless --convert-to pdf 사용자매뉴얼.docx)",
+      "Bash(python -c ' *)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" log --oneline -20)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" log --oneline -- public/script.js)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" diff HEAD -- script.js public/script.js)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" log --oneline -- script.js admin-script.js)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" log --oneline -- public/admin-script.js public/script.js)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" status --short)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" log --oneline -3)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" add styles.css)",
+      "Bash(git -C 'C:\\\\myPrjt01\\\\mymenu01' commit -m ' *)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" add staff-order.html staff-order-styles.css public/staff-order-script.js)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" push origin main)",
+      "Bash(git -C \"C:\\\\myPrjt01\\\\mymenu01\" add public/staff-order-script.js)"
     ]
   }
 }
