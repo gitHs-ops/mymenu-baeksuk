@@ -450,7 +450,11 @@ async function handlePaymentReturn() {
                 sessionStorage.removeItem('pendingOrder');
                 cart = [];
                 updateCartUI();
-                confirmModal.classList.add('active');
+                if (r.batch) {
+                    alert('결제가 완료되었습니다!');
+                } else {
+                    confirmModal.classList.add('active');
+                }
             } else {
                 alert('결제 승인 실패');
             }
@@ -473,7 +477,7 @@ function closeConfirmation() {
 function payFromHistory(orderId, total) {
     pendingOrderId = orderId;
     pendingOrderTotal = total;
-    closeHistoryModal();
+    historyModal.classList.remove('active');
     document.getElementById('paymentAmount').textContent = total.toLocaleString('ko-KR');
     document.getElementById('paymentMethodModal').classList.add('active');
 }
@@ -563,14 +567,16 @@ function displayOrderHistory(orders) {
             });
         }
         
-        const payBtn = !order.payment_key
-            ? `<button class="btn btn-primary pay-history-btn" style="margin-top:8px;width:100%" onclick="payFromHistory('${order.id}', ${Math.round(parseFloat(order.total))})">💳 결제하기</button>`
-            : `<div style="text-align:center;color:#22c55e;font-size:13px;margin-top:6px;">✅ 결제완료</div>`;
+        const paidBadge = order.payment_key
+            ? `<span style="color:#22c55e;font-size:12px;">✅ 결제완료</span>` : '';
 
         orderDiv.innerHTML = `
             <div class="history-order-header">
                 <div class="history-order-date">${dateStr}</div>
-                <span class="history-status ${statusClass[order.status]}">${statusText[order.status]}</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    ${paidBadge}
+                    <span class="history-status ${statusClass[order.status]}">${statusText[order.status]}</span>
+                </div>
             </div>
             <div class="history-order-items">
                 ${itemsHTML}
@@ -578,7 +584,6 @@ function displayOrderHistory(orders) {
             <div class="history-order-total">
                 총 금액: <strong>${formatPrice(order.total)}</strong>
             </div>
-            ${payBtn}
         `;
 
         historyItems.appendChild(orderDiv);
@@ -587,7 +592,23 @@ function displayOrderHistory(orders) {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-    
+
+    // 미결제 합산 결제 버튼
+    const unpaidTotal = orders
+        .filter(o => !o.payment_key)
+        .reduce((sum, o) => sum + Math.round(parseFloat(o.total)), 0);
+
+    if (unpaidTotal > 0) {
+        const payAllDiv = document.createElement('div');
+        payAllDiv.style.cssText = 'padding:12px 0;';
+        payAllDiv.innerHTML = `
+            <button class="btn btn-primary" style="width:100%;font-size:16px;padding:14px;"
+                onclick="payFromHistory('batch_${tableNumber}_${Date.now()}', ${unpaidTotal})">
+                💳 미결제 전체 결제 ${formatPrice(unpaidTotal)}
+            </button>`;
+        historyItems.appendChild(payAllDiv);
+    }
+
     const calculatorDiv = document.createElement('div');
     calculatorDiv.className = 'split-calculator';
     calculatorDiv.innerHTML = `

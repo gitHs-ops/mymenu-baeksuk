@@ -248,7 +248,54 @@ app.post('/api/payment/confirm', async (req, res) => {
 
     const secretKey = process.env.TOSS_SECRET_KEY || 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
 
-    // 1) Validate amount against the stored order (anti-tamper)
+    // ── 배치 결제: orderId = "batch_{tableNumber}_{timestamp}" ──
+    if (orderId.startsWith('batch_')) {
+        const tableNumber = parseInt(orderId.split('_')[1], 10);
+
+        // Toss confirm
+        let tossData;
+        try {
+            const resp = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
+                method: 'POST',
+                headers: {
+                    Authorization: 'Basic ' + Buffer.from(secretKey + ':').toString('base64'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ paymentKey, orderId, amount })
+            });
+            tossData = await resp.json();
+            if (!resp.ok) {
+                console.error('Toss batch confirm failed:', tossData);
+                return res.status(400).json({ error: 'payment confirm failed', details: tossData });
+            }
+        } catch (err) {
+            return res.status(502).json({ error: 'failed to reach Toss', details: err.message });
+        }
+
+        const paidAt = new Date();
+        const method = tossData.method || null;
+
+        // 해당 테이블의 미결제 주문 전체 paid 처리
+        if (USE_DATABASE) {
+            await pool.query(
+                "UPDATE orders SET payment_status='paid', payment_key=?, payment_method=?, paid_at=? WHERE table_number=? AND (payment_key IS NULL OR payment_key='') AND cleared_at IS NULL",
+                [paymentKey, method, paidAt, tableNumber]
+            );
+        } else {
+            memoryOrders.forEach(o => {
+                if (o.table_number === tableNumber && !o.payment_key && !o.cleared_at) {
+                    o.payment_status = 'paid';
+                    o.payment_key = paymentKey;
+                    o.payment_method = method;
+                    o.paid_at = paidAt.toISOString();
+                }
+            });
+        }
+
+        return res.json({ success: true, batch: true });
+    }
+
+    // ── 단건 결제 ──
     let storedOrder = null;
     if (USE_DATABASE) {
         const [[row]] = await pool.query(
@@ -268,7 +315,7 @@ app.post('/api/payment/confirm', async (req, res) => {
         return res.json({ success: true, alreadyPaid: true });
     }
 
-    // 2) Call Toss confirm API
+    // Toss confirm
     let tossData;
     try {
         const resp = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
@@ -282,7 +329,6 @@ app.post('/api/payment/confirm', async (req, res) => {
         tossData = await resp.json();
         if (!resp.ok) {
             console.error('Toss confirm failed:', tossData);
-            // Mark failed in DB
             if (USE_DATABASE) {
                 await pool.query("UPDATE orders SET payment_status='failed' WHERE id=?", [orderId]);
             } else {
@@ -295,7 +341,6 @@ app.post('/api/payment/confirm', async (req, res) => {
         return res.status(502).json({ error: 'failed to reach Toss', details: err.message });
     }
 
-    // 3) Update DB to paid
     const paidAt = new Date();
     const method = tossData.method || null;
     if (USE_DATABASE) {
@@ -310,7 +355,6 @@ app.post('/api/payment/confirm', async (req, res) => {
         storedOrder.paid_at = paidAt.toISOString();
     }
 
-    // 4) Fetch full order (with items) and broadcast to admin
     let fullOrder;
     if (USE_DATABASE) {
         const [[row]] = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
