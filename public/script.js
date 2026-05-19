@@ -470,6 +470,15 @@ function closeConfirmation() {
     confirmModal.classList.remove('active');
 }
 
+function payFromHistory(orderId, total) {
+    pendingOrderId = orderId;
+    pendingOrderTotal = total;
+    closeHistoryModal();
+    document.getElementById('paymentAmount').textContent = total.toLocaleString('ko-KR');
+    document.getElementById('paymentMethodModal').classList.add('active');
+}
+window.payFromHistory = payFromHistory;
+
 async function initSession() {
     const token = sessionStorage.getItem('sessionToken');
     const tokenTable = parseInt(sessionStorage.getItem('sessionTable'));
@@ -554,6 +563,10 @@ function displayOrderHistory(orders) {
             });
         }
         
+        const payBtn = !order.payment_key
+            ? `<button class="btn btn-primary pay-history-btn" style="margin-top:8px;width:100%" onclick="payFromHistory('${order.id}', ${Math.round(parseFloat(order.total))})">💳 결제하기</button>`
+            : `<div style="text-align:center;color:#22c55e;font-size:13px;margin-top:6px;">✅ 결제완료</div>`;
+
         orderDiv.innerHTML = `
             <div class="history-order-header">
                 <div class="history-order-date">${dateStr}</div>
@@ -565,8 +578,9 @@ function displayOrderHistory(orders) {
             <div class="history-order-total">
                 총 금액: <strong>${formatPrice(order.total)}</strong>
             </div>
+            ${payBtn}
         `;
-        
+
         historyItems.appendChild(orderDiv);
     });
 

@@ -252,7 +252,7 @@ app.post('/api/payment/confirm', async (req, res) => {
     let storedOrder = null;
     if (USE_DATABASE) {
         const [[row]] = await pool.query(
-            'SELECT id, table_number, total, payment_status FROM orders WHERE id = ?', [orderId]
+            'SELECT id, table_number, total, payment_status, payment_key FROM orders WHERE id = ?', [orderId]
         );
         storedOrder = row;
     } else {
@@ -264,7 +264,7 @@ app.post('/api/payment/confirm', async (req, res) => {
     if (Number(storedOrder.total) !== Number(amount)) {
         return res.status(400).json({ error: 'amount mismatch' });
     }
-    if (storedOrder.payment_status === 'paid') {
+    if (storedOrder.payment_status === 'paid' && storedOrder.payment_key) {
         return res.json({ success: true, alreadyPaid: true });
     }
 
