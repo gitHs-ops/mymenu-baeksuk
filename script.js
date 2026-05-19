@@ -100,6 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load cart from localStorage
     loadCart();
+
+    // Register table session (prevents ordering after table is cleared)
+    initSession();
 });
 
 // Add item to cart
@@ -221,6 +224,22 @@ function closeCart() {
     cartModal.classList.remove('active');
 }
 
+// Register session on page load
+async function initSession() {
+    let token = sessionStorage.getItem('sessionToken');
+    let tokenTable = parseInt(sessionStorage.getItem('sessionTable'));
+    if (token && tokenTable === tableNumber) return; // 이미 등록된 세션
+
+    try {
+        const res = await fetch(`/api/tables/${tableNumber}/session`, { method: 'POST' });
+        const data = await res.json();
+        sessionStorage.setItem('sessionToken', data.sessionToken);
+        sessionStorage.setItem('sessionTable', tableNumber);
+    } catch (e) {
+        console.error('세션 등록 실패', e);
+    }
+}
+
 // Place order (directly to server, then ask for prepayment)
 async function placeOrder() {
     if (cart.length === 0) {
@@ -240,10 +259,15 @@ async function placeOrder() {
                 tableNumber,
                 items: cart.map(item => ({...item})),
                 total,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                sessionToken: sessionStorage.getItem('sessionToken')
             })
         });
-        if (!res.ok) throw new Error('server error');
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            alert(err.error || '주문 전송 실패. 다시 시도해주세요.');
+            return;
+        }
     } catch (e) {
         alert('주문 전송 실패. 다시 시도해주세요.');
         return;

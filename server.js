@@ -14,6 +14,11 @@ const USE_DATABASE = (process.env.DB_HOST || process.env.MYSQLHOST) &&
 let memoryOrders = [];
 let staffCalls = [];
 
+// Session store: token → { tableNumber, createdAt }
+const sessionStore = new Map();
+// Last cleared timestamp per table (kept in memory regardless of DB mode)
+const tableLastCleared = new Map();
+
 const memoryMenu = [
     { id:  1, name: '탕수육 미니',   category: '탕수육',  price: 15000, is_available: true, sort_order:  1 },
     { id:  2, name: '탕수육 (소)',   category: '탕수육',  price: 20000, is_available: true, sort_order:  2 },
@@ -472,7 +477,18 @@ app.get('/api/orders/:id', async (req, res) => {
 // and NOT broadcast to admin yet. Broadcast happens after /api/payment/confirm.
 // Legacy callers (no paymentMethod) keep the old behavior: paid + broadcast.
 app.post('/api/orders', async (req, res) => {
-    const { id: clientId, tableNumber, items, total, timestamp, paymentMethod } = req.body;
+    const { id: clientId, tableNumber, items, total, timestamp, paymentMethod, sessionToken } = req.body;
+
+    // Validate session
+    const session = sessionToken ? sessionStore.get(sessionToken) : null;
+    if (!session || session.tableNumber !== tableNumber) {
+        return res.status(403).json({ error: '유효하지 않은 세션입니다. 페이지를 새로 고침하세요.' });
+    }
+    const lastCleared = tableLastCleared.get(tableNumber);
+    if (lastCleared && new Date(session.createdAt) < new Date(lastCleared)) {
+        return res.status(403).json({ error: '테이블이 마감되었습니다. 직원을 호출해 주세요.' });
+    }
+
     const id = clientId || ('order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
     const isPrepay = !!paymentMethod;
     const paymentStatus = isPrepay ? 'pending' : 'paid';
@@ -717,6 +733,17 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
 });
 
+// Register a new customer session for a table
+app.post('/api/tables/:tableNumber/session', (req, res) => {
+    const tableNumber = parseInt(req.params.tableNumber, 10);
+    if (isNaN(tableNumber)) return res.status(400).json({ error: 'Invalid table number' });
+
+    const token = Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
+    const createdAt = new Date().toISOString();
+    sessionStore.set(token, { tableNumber, createdAt });
+    res.json({ sessionToken: token, createdAt });
+});
+
 // Clear (close) a table's session — keeps rows for stats but hides from customer history
 app.post('/api/tables/:tableNumber/clear', async (req, res) => {
     const tableNumber = parseInt(req.params.tableNumber, 10);
@@ -724,12 +751,14 @@ app.post('/api/tables/:tableNumber/clear', async (req, res) => {
         return res.status(400).json({ error: 'Invalid table number' });
     }
 
+    const clearedAt = new Date().toISOString();
+    tableLastCleared.set(tableNumber, clearedAt);
+
     if (!USE_DATABASE) {
         let count = 0;
-        const now = new Date().toISOString();
         memoryOrders.forEach(o => {
             if (o.table_number === tableNumber && !o.cleared_at) {
-                o.cleared_at = now;
+                o.cleared_at = clearedAt;
                 count++;
             }
         });
