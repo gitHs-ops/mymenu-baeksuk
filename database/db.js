@@ -2,25 +2,19 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 // Create connection pool
-// DATABASE_URL 우선 사용 (Railway 공용 URL), 없으면 개별 환경변수 사용
-const dbUrl = process.env.DATABASE_URL || process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL;
-
-console.log('🔌 DB connection mode:', dbUrl ? 'DATABASE_URL' : `host=${process.env.DB_HOST || process.env.MYSQLHOST}`);
-
-const pool = dbUrl
-    ? mysql.createPool(dbUrl)   // mysql2는 URL 문자열을 직접 받음
-    : mysql.createPool({
-        host: process.env.DB_HOST || process.env.MYSQLHOST,
-        port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
-        user: process.env.DB_USER || process.env.MYSQLUSER,
-        password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
-        database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'railway',
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
-        enableKeepAlive: true,
-        keepAliveInitialDelay: 0
-    });
+// Support both custom env vars and Railway's default MySQL vars
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || process.env.MYSQLHOST,
+    port: process.env.DB_PORT || process.env.MYSQLPORT || 3306,
+    user: process.env.DB_USER || process.env.MYSQLUSER,
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'railway',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
+});
 
 // Test connection
 async function testConnection() {
