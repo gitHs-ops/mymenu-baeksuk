@@ -1124,39 +1124,27 @@ app.get('/staff-order', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
-    try {
-        if (USE_DATABASE) {
-            console.log('🔌 Connecting to MySQL database...');
-            // Test database connection
+    if (USE_DATABASE) {
+        console.log('🔌 Connecting to MySQL database...');
+        try {
             await testConnection();
-            
-            // Initialize database tables
             await initializeDatabase();
             console.log('✅ Database connected and initialized');
-        } else {
-            console.log('⚠️  Running without database (Railway will provide DB credentials)');
-            console.log('💡 Set DB_HOST and DB_USER in environment variables to enable database');
+        } catch (error) {
+            // DB 연결 실패 시 메모리 모드로 fallback — 서버는 계속 시작
+            console.error('⚠️  DB connection failed, running in memory mode:', error.message);
         }
-        
-        // Start server
-        server.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
-            console.log(`📱 Customer app: http://localhost:${PORT}/`);
-            console.log(`🏪 Admin app: http://localhost:${PORT}/admin`);
-            console.log(`📱 QR Generator: http://localhost:${PORT}/qr-generator`);
-            
-            if (!USE_DATABASE) {
-                console.log('\n⚠️  Database not configured - Deploy to Railway to enable full functionality');
-            }
-        });
-    } catch (error) {
-        console.error('❌ Failed to start server:', error);
-        if (USE_DATABASE) {
-            console.log('\n💡 Tip: Check your database credentials in .env file');
-            console.log('💡 Or deploy to Railway for automatic database setup');
-        }
-        process.exit(1);
+    } else {
+        console.log('⚠️  Running without database (memory mode)');
     }
+
+    // DB 성공 여부와 무관하게 서버 시작
+    server.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📱 Customer app: http://localhost:${PORT}/`);
+        console.log(`🏪 Admin app: http://localhost:${PORT}/admin`);
+        console.log(`📱 QR Generator: http://localhost:${PORT}/qr-generator`);
+    });
 }
 
 startServer();
