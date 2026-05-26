@@ -2,10 +2,19 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 // Create connection pool
-// Support both custom env vars and Railway's default MySQL vars
-const pool = mysql.createPool({
+// DATABASE_URL 우선 사용 (Railway 공용 URL), 없으면 개별 환경변수 사용
+const dbUrl = process.env.DATABASE_URL || process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL;
+
+const poolConfig = dbUrl ? {
+    uri: dbUrl,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
+} : {
     host: process.env.DB_HOST || process.env.MYSQLHOST,
-    port: process.env.DB_PORT || process.env.MYSQLPORT || 3306,
+    port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
     user: process.env.DB_USER || process.env.MYSQLUSER,
     password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
     database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'railway',
@@ -14,7 +23,11 @@ const pool = mysql.createPool({
     queueLimit: 0,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0
-});
+};
+
+console.log('🔌 DB connection mode:', dbUrl ? 'DATABASE_URL' : `host=${process.env.DB_HOST || process.env.MYSQLHOST}`);
+
+const pool = mysql.createPool(poolConfig);
 
 // Test connection
 async function testConnection() {
