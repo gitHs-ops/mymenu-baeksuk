@@ -31,7 +31,7 @@ const memoryMenu = [
     { id:  9, name: '장수탕 닭 또는 오리',      category: '특선',     price: 130000, is_available: true, sort_order: 10 },
     { id: 10, name: '왕새우 4마리',             category: '추가메뉴', price:  15000, is_available: true, sort_order: 20 },
     { id: 11, name: '왕홍합 10마리',            category: '추가메뉴', price:  10000, is_available: true, sort_order: 21 },
-    { id: 12, name: '왕우무 1마리',             category: '추가메뉴', price:  10000, is_available: true, sort_order: 22 },
+    { id: 12, name: '왕쭈구미 1마리',            category: '추가메뉴', price:  10000, is_available: true, sort_order: 22 },
     { id: 13, name: '전복 4마리',               category: '추가메뉴', price:  15000, is_available: true, sort_order: 23 },
     { id: 14, name: '가리비 4마리',             category: '추가메뉴', price:  15000, is_available: true, sort_order: 24 },
     { id: 15, name: '죽 포장',                  category: '추가메뉴', price:  10000, is_available: true, sort_order: 25 },
