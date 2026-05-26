@@ -34,7 +34,7 @@ const memoryMenu = [
     { id: 12, name: '왕우무 1마리',             category: '추가메뉴', price:  10000, is_available: true, sort_order: 22 },
     { id: 13, name: '전복 4마리',               category: '추가메뉴', price:  15000, is_available: true, sort_order: 23 },
     { id: 14, name: '가리비 4마리',             category: '추가메뉴', price:  15000, is_available: true, sort_order: 24 },
-    { id: 15, name: '혹 포장',                  category: '추가메뉴', price:  10000, is_available: true, sort_order: 25 },
+    { id: 15, name: '죽 포장',                  category: '추가메뉴', price:  10000, is_available: true, sort_order: 25 },
     { id: 16, name: '도토리묵무침',             category: '사이드',   price:  12000, is_available: true, sort_order: 30 },
     { id: 17, name: '소주',                     category: '주류',     price:   4000, is_available: true, sort_order: 40 },
     { id: 18, name: '맥주',                     category: '주류',     price:   4000, is_available: true, sort_order: 41 },
