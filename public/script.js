@@ -5,14 +5,11 @@ let pendingOrderId = null;
 let pendingOrderTotal = 0;
 
 const CATEGORY_ICONS = {
-    '탕수육': '🥘',
-    '요리':   '🍲',
-    '면':     '🍜',
-    '밥':     '🍚',
-    '1인세트':'🎁',
-    '2인세트':'🎁',
-    '계절':   '🌸',
-    '주류':   '🍺',
+    '메인메뉴': '🍲',
+    '특선':    '⭐',
+    '추가메뉴': '🦐',
+    '사이드':  '🥗',
+    '주류':    '🍺',
 };
 
 // Get table number from URL parameter
