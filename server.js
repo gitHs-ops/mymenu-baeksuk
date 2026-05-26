@@ -7,7 +7,7 @@ require('dotenv').config();
 // Only require database if DB credentials are provided
 // Support both custom env vars and Railway's default MySQL vars
 let pool, testConnection, initializeDatabase;
-const USE_DATABASE = (process.env.DB_HOST || process.env.MYSQLHOST) &&
+let USE_DATABASE = (process.env.DB_HOST || process.env.MYSQLHOST) &&
                      (process.env.DB_USER || process.env.MYSQLUSER);
 
 // In-memory storage for development without database
@@ -1133,6 +1133,7 @@ async function startServer() {
         } catch (error) {
             // DB 연결 실패 시 메모리 모드로 fallback — 서버는 계속 시작
             console.error('⚠️  DB connection failed, running in memory mode:', error.message);
+            USE_DATABASE = false;
         }
     } else {
         console.log('⚠️  Running without database (memory mode)');
