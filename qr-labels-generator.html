@@ -312,17 +312,31 @@
             height: 420px;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
             border: 3px solid rgba(255,255,255,0.3);
+            gap: 8px;
         }
 
-        .admin-label .admin-badge {
-            font-size: 0.75em;
+        .admin-title {
+            font-size: 1.1em;
             font-weight: bold;
-            background: rgba(255,215,0,0.3);
-            border: 1px solid gold;
-            color: gold;
-            padding: 3px 12px;
-            border-radius: 20px;
-            letter-spacing: 1px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .admin-subtext {
+            font-size: 0.8em;
+            opacity: 0.85;
+            text-align: center;
+        }
+
+        .admin-desc {
+            font-size: 0.65em;
+            opacity: 0.85;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .admin-screen-only {
+            margin-top: 4px;
         }
 
         .admin-label .qr-code-wrapper {
@@ -382,29 +396,46 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                width: 100vw;
-                height: 100vh;
                 margin: 0;
                 padding: 0;
             }
 
             .admin-label {
-                width: 180mm !important;
-                height: 250mm !important;
-                page-break-after: always;
+                width: 170mm !important;
+                height: 240mm !important;
+                background: white !important;
+                border: none !important;
+                box-shadow: none !important;
+                color: #111 !important;
+                justify-content: center;
+                gap: 10mm;
+            }
+
+            .admin-label .admin-title {
+                font-size: 20pt !important;
+                font-weight: bold !important;
+                color: #111 !important;
+            }
+
+            .admin-label .admin-subtext {
+                font-size: 13pt !important;
+                color: #444 !important;
+                opacity: 1 !important;
             }
 
             .admin-label .qr-code-wrapper {
-                width: 140mm !important;
-                height: 140mm !important;
+                width: 120mm !important;
+                height: 120mm !important;
             }
 
-            .admin-label .restaurant-name {
-                font-size: 1.1em !important;
+            .admin-label .admin-desc {
+                font-size: 11pt !important;
+                color: #555 !important;
+                opacity: 1 !important;
             }
 
-            .admin-label .label-description {
-                font-size: 0.75em !important;
+            .admin-label .admin-screen-only {
+                display: none !important;
             }
         }
 
@@ -580,13 +611,11 @@
 
             label.innerHTML = isAdmin ? `
                 <div class="label-content">
-                    <div class="header-row">
-                        <div class="restaurant-name">${escapeHtml(restaurantName)}</div>
-                        <div class="table-number-header">관리자용</div>
-                    </div>
-                    <div class="subtext">주문 관리 화면</div>
+                    <div class="admin-title">${escapeHtml(restaurantName)}</div>
+                    <div class="admin-subtext">주문 관리 화면</div>
                     <div class="qr-code-wrapper" id="qr-${tableNumber}"></div>
-                    <div class="label-description">이 QR코드는 업주용입니다<br>주문 현황을 확인하세요</div>
+                    <div class="admin-desc">이 QR코드는 업주용입니다<br>주문 현황을 확인하세요</div>
+                    <div class="admin-screen-only table-number-header">관리자용</div>
                 </div>
             ` : `
                 <div class="label-content">
