@@ -549,7 +549,12 @@
             // 라벨 요소 생성
             const label = document.createElement('div');
             label.className = isAdmin ? 'label admin-label' : (isNoBg ? 'label label-nobg' : 'label');
-            if (!isAdmin && gradient) label.style.background = gradient;
+            if (isNoBg) {
+                label.style.background = 'white';
+                label.style.color = '#333';
+            } else if (!isAdmin && gradient) {
+                label.style.background = gradient;
+            }
 
             // QR URL 생성 (관리자용은 /admin 경로)
             let qrUrl;
