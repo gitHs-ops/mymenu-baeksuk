@@ -324,6 +324,11 @@
             height: 200px;
         }
 
+        @page {
+            margin: 8mm;
+            size: A4;
+        }
+
         @media print {
             body {
                 background: white;
@@ -332,10 +337,10 @@
 
             .container {
                 box-shadow: none;
-                padding: 10px;
+                padding: 0;
             }
 
-            .control-panel, .info-box, .preview-header {
+            h1, .subtitle, .control-panel, .info-box, .preview-header {
                 display: none;
             }
 
