@@ -275,6 +275,31 @@
             margin-bottom: 5px;
         }
 
+        /* 배경 없음 */
+        .label-nobg {
+            background: white !important;
+            color: #333 !important;
+            border: 2px dashed #ccc;
+            box-shadow: none;
+        }
+
+        .label-nobg .subtext,
+        .label-nobg .label-description,
+        .label-nobg .restaurant-name {
+            color: #333 !important;
+            opacity: 1;
+        }
+
+        .label-nobg .table-number-header,
+        .label-nobg .table-number {
+            background: rgba(0,0,0,0.08);
+            color: #333;
+        }
+
+        .label-nobg::before {
+            display: none;
+        }
+
         /* 관리자용 라벨 (테이블 0) */
         .admin-label {
             width: 300px;
@@ -418,6 +443,7 @@
                     <option value="green">🟢 초록색</option>
                     <option value="orange">🟠 주황색</option>
                     <option value="pink">🌸 핑크색</option>
+                    <option value="none">⬜ 배경 없음</option>
                 </select>
             </div>
 
@@ -458,7 +484,8 @@
             red: ['#fa5252', '#fd7e14'],
             green: ['#11998e', '#38ef7d'],
             orange: ['#f093fb', '#f5576c'],
-            pink: ['#ec407a', '#ff6f9f']
+            pink: ['#ec407a', '#ff6f9f'],
+            none: null
         };
 
         // 페이지 로드 시 URL 자동 설정
@@ -510,13 +537,14 @@
 
         function createLabel(restaurantName, tableNumber, baseUrl, colorTheme) {
             const isAdmin = tableNumber === 0;
+            const isNoBg = colorTheme === 'none' && !isAdmin;
             const colors = colorThemes[colorTheme];
-            const gradient = `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`;
+            const gradient = colors ? `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)` : null;
 
             // 라벨 요소 생성
             const label = document.createElement('div');
-            label.className = isAdmin ? 'label admin-label' : 'label';
-            if (!isAdmin) label.style.background = gradient;
+            label.className = isAdmin ? 'label admin-label' : (isNoBg ? 'label label-nobg' : 'label');
+            if (!isAdmin && gradient) label.style.background = gradient;
 
             // QR URL 생성 (관리자용은 /admin 경로)
             let qrUrl;
