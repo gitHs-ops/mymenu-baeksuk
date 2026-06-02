@@ -624,14 +624,12 @@ function displayOrderHistory(orders) {
                 <button class="split-btn" onclick="increaseSplit()">+</button>
             </div>
         </div>
-        <div class="split-result">
-            <span>1인당 금액:</span>
-            <strong id="splitAmount">${formatPrice(Math.ceil(totalAmount / 2))}</strong>
-        </div>
+        <div id="splitResult" class="split-result"></div>
     `;
-    
+
     historyItems.appendChild(calculatorDiv);
     window.historyTotalAmount = totalAmount;
+    calculateSplit();
 }
 
 function closeHistoryModal() {
@@ -643,8 +641,34 @@ function closeHistoryModal() {
 function calculateSplit() {
     const splitCount = parseInt(document.getElementById('splitCount').value) || 1;
     const totalAmount = window.historyTotalAmount || 0;
-    const perPerson = Math.ceil(totalAmount / splitCount);
-    document.getElementById('splitAmount').textContent = formatPrice(perPerson);
+    const resultDiv = document.getElementById('splitResult');
+    if (!resultDiv) return;
+
+    if (splitCount === 1) {
+        resultDiv.innerHTML = `<span>1인당 금액:</span><strong>${formatPrice(totalAmount)}</strong>`;
+        return;
+    }
+
+    const base = Math.floor(totalAmount / splitCount);
+    const remainder = totalAmount % splitCount;
+
+    if (remainder === 0) {
+        // 정수로 나눠 떨어짐
+        resultDiv.innerHTML = `<span>1인당 금액:</span><strong>${formatPrice(base)}</strong>`;
+    } else {
+        // 총무가 나머지 금액 부담
+        const chongmuAmount = base + remainder;
+        resultDiv.innerHTML = `
+            <div class="split-row">
+                <span>💼 총무 금액:</span>
+                <strong>${formatPrice(chongmuAmount)}</strong>
+            </div>
+            <div class="split-row split-others">
+                <span>나머지 ${splitCount - 1}명 각각:</span>
+                <strong>${formatPrice(base)}</strong>
+            </div>
+        `;
+    }
 }
 
 function increaseSplit() {

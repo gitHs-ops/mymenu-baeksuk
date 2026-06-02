@@ -898,17 +898,30 @@ body {
 
 .split-result {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .split-result strong {
-    font-size: 1.5em;
+    font-size: 1.4em;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.split-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.split-others {
+    border-top: 1px solid rgba(255,255,255,0.3);
+    padding-top: 8px;
+    margin-top: 2px;
+    opacity: 0.9;
 }
 
 /* Staff Call Modal Styles */
