@@ -275,6 +275,30 @@
             margin-bottom: 5px;
         }
 
+        /* 관리자용 라벨 (테이블 0) */
+        .admin-label {
+            width: 300px;
+            height: 420px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .admin-label .admin-badge {
+            font-size: 0.75em;
+            font-weight: bold;
+            background: rgba(255,215,0,0.3);
+            border: 1px solid gold;
+            color: gold;
+            padding: 3px 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .admin-label .qr-code-wrapper {
+            width: 200px;
+            height: 200px;
+        }
+
         @media print {
             body {
                 background: white;
@@ -316,6 +340,36 @@
             .label-description {
                 font-size: 0.55em;
             }
+
+            /* 관리자용: A4 전체 페이지 단독 출력 */
+            .labels-container:has(.admin-label) {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100vw;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
+            }
+
+            .admin-label {
+                width: 180mm !important;
+                height: 250mm !important;
+                page-break-after: always;
+            }
+
+            .admin-label .qr-code-wrapper {
+                width: 140mm !important;
+                height: 140mm !important;
+            }
+
+            .admin-label .restaurant-name {
+                font-size: 1.1em !important;
+            }
+
+            .admin-label .label-description {
+                font-size: 0.75em !important;
+            }
         }
 
         .color-preview {
@@ -341,12 +395,12 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="startTable">시작 테이블 번호:</label>
-                    <input type="number" id="startTable" min="1" max="100" value="1">
+                    <label for="startTable">시작 테이블 번호: <span style="color:#667eea;font-size:0.85em">(0 입력 시 관리자용 A4 출력)</span></label>
+                    <input type="number" id="startTable" min="0" max="100" value="1">
                 </div>
                 <div class="form-group">
                     <label for="endTable">끝 테이블 번호:</label>
-                    <input type="number" id="endTable" min="1" max="100" value="10">
+                    <input type="number" id="endTable" min="0" max="100" value="10">
                 </div>
             </div>
 
@@ -411,6 +465,13 @@
         window.addEventListener('DOMContentLoaded', () => {
             const currentPath = window.location.href.replace('qr-labels-generator.html', 'index.html');
             document.getElementById('urlInput').value = currentPath;
+
+            // 시작 번호 0 입력 시 끝 번호도 0으로 자동 세팅
+            document.getElementById('startTable').addEventListener('input', function() {
+                if (parseInt(this.value) === 0) {
+                    document.getElementById('endTable').value = 0;
+                }
+            });
         });
 
         function generateLabels() {
@@ -420,9 +481,9 @@
             const baseUrl = document.getElementById('urlInput').value.trim();
             const colorTheme = document.getElementById('colorTheme').value;
 
-            // 유효성 검사
-            if (startTable < 1 || endTable > 100 || startTable > endTable) {
-                alert('올바른 테이블 번호를 입력하세요 (1-100)');
+            // 유효성 검사 (0번 허용 — 관리자용)
+            if (isNaN(startTable) || startTable < 0 || endTable > 100 || startTable > endTable) {
+                alert('올바른 테이블 번호를 입력하세요 (0-100, 0번은 관리자용)');
                 return;
             }
 
@@ -448,20 +509,36 @@
         }
 
         function createLabel(restaurantName, tableNumber, baseUrl, colorTheme) {
+            const isAdmin = tableNumber === 0;
             const colors = colorThemes[colorTheme];
             const gradient = `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`;
 
             // 라벨 요소 생성
             const label = document.createElement('div');
-            label.className = 'label';
-            label.style.background = gradient;
+            label.className = isAdmin ? 'label admin-label' : 'label';
+            if (!isAdmin) label.style.background = gradient;
 
-            // QR URL 생성
-            let qrUrl = baseUrl || window.location.href.replace('qr-labels-generator.html', 'index.html');
-            qrUrl += (qrUrl.includes('?') ? '&' : '?') + 'table=' + tableNumber;
+            // QR URL 생성 (관리자용은 /admin 경로)
+            let qrUrl;
+            if (isAdmin) {
+                qrUrl = (baseUrl || window.location.href.replace('qr-labels-generator.html', 'index.html'))
+                    .replace(/\/index\.html.*$/, '/admin').replace(/\?.*$/, '');
+            } else {
+                qrUrl = baseUrl || window.location.href.replace('qr-labels-generator.html', 'index.html');
+                qrUrl += (qrUrl.includes('?') ? '&' : '?') + 'table=' + tableNumber;
+            }
 
-            // QR 코드 생성 (비동기로 처리)
-            label.innerHTML = `
+            const qrSize = isAdmin ? 180 : 70;
+
+            label.innerHTML = isAdmin ? `
+                <div class="label-content">
+                    <div class="admin-badge">🏪 관리자 전용</div>
+                    <div class="restaurant-name" style="font-size:1em;margin:6px 0">${escapeHtml(restaurantName)}</div>
+                    <div class="subtext">주문 관리 화면</div>
+                    <div class="qr-code-wrapper" id="qr-${tableNumber}"></div>
+                    <div class="label-description">이 QR코드는 업주용입니다<br>주문 현황을 확인하세요</div>
+                </div>
+            ` : `
                 <div class="label-content">
                     <div class="header-row">
                         <div class="restaurant-name">${escapeHtml(restaurantName)}</div>
@@ -478,8 +555,8 @@
                 try {
                     new QRCode(document.getElementById(`qr-${tableNumber}`), {
                         text: qrUrl,
-                        width: 70,
-                        height: 70,
+                        width: qrSize,
+                        height: qrSize,
                         colorDark: '#000000',
                         colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.H
@@ -499,7 +576,7 @@
         }
 
         // Enter 키로 생성
-        ['restaurantName', 'startTable', 'endTable'].forEach(id => {
+        ['restaurantName', 'startTable', 'endTable', 'urlInput'].forEach(id => {
             document.getElementById(id).addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     generateLabels();
