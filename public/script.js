@@ -645,18 +645,20 @@ function calculateSplit() {
     if (!resultDiv) return;
 
     if (splitCount === 1) {
-        resultDiv.innerHTML = `<span>1인당 금액:</span><strong>${formatPrice(totalAmount)}</strong>`;
+        resultDiv.innerHTML = `<div class="split-row"><span>1인당 금액:</span><strong>${formatPrice(totalAmount)}</strong></div>`;
         return;
     }
 
-    const base = Math.floor(totalAmount / splitCount);
-    const remainder = totalAmount % splitCount;
+    // 1,000원 단위로 내림한 1인당 금액
+    const base = Math.floor(totalAmount / splitCount / 1000) * 1000;
+    // 총무가 부담할 나머지 금액
+    const remainder = totalAmount - base * splitCount;
 
     if (remainder === 0) {
-        // 정수로 나눠 떨어짐
-        resultDiv.innerHTML = `<span>1인당 금액:</span><strong>${formatPrice(base)}</strong>`;
+        // 1,000원 단위로 딱 떨어짐
+        resultDiv.innerHTML = `<div class="split-row"><span>1인당 금액:</span><strong>${formatPrice(base)}</strong></div>`;
     } else {
-        // 총무가 나머지 금액 부담
+        // 총무가 나머지 부담
         const chongmuAmount = base + remainder;
         resultDiv.innerHTML = `
             <div class="split-row">
