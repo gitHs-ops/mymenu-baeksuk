@@ -649,25 +649,23 @@ function calculateSplit() {
         return;
     }
 
-    // 1,000원 단위로 내림한 1인당 금액
-    const base = Math.floor(totalAmount / splitCount / 1000) * 1000;
-    // 총무가 부담할 나머지 금액
-    const remainder = totalAmount - base * splitCount;
+    // 나머지 인원은 1,000원 단위 올림, 총무는 차액만큼 할인 (간지와리비키)
+    const others = Math.ceil(totalAmount / splitCount / 1000) * 1000;
+    const chongmuAmount = totalAmount - others * (splitCount - 1);
 
-    if (remainder === 0) {
-        // 1,000원 단위로 딱 떨어짐
-        resultDiv.innerHTML = `<div class="split-row"><span>1인당 금액:</span><strong>${formatPrice(base)}</strong></div>`;
+    if (chongmuAmount === others) {
+        // 1,000원 단위로 딱 떨어짐 — 균등 분배
+        resultDiv.innerHTML = `<div class="split-row"><span>1인당 금액:</span><strong>${formatPrice(others)}</strong></div>`;
     } else {
-        // 총무가 나머지 부담
-        const chongmuAmount = base + remainder;
+        // 간지와리비키: 총무가 적게 냄
         resultDiv.innerHTML = `
             <div class="split-row">
-                <span>💼 총무 금액:</span>
-                <strong>${formatPrice(chongmuAmount)}</strong>
+                <span>나머지 ${splitCount - 1}명 각각:</span>
+                <strong>${formatPrice(others)}</strong>
             </div>
             <div class="split-row split-others">
-                <span>나머지 ${splitCount - 1}명 각각:</span>
-                <strong>${formatPrice(base)}</strong>
+                <span>🎖️ 총무 할인 금액:</span>
+                <strong>${formatPrice(chongmuAmount)}</strong>
             </div>
         `;
     }
