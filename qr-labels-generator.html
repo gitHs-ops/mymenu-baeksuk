@@ -296,6 +296,12 @@
             color: #333;
         }
 
+        .label-nobg .admin-badge {
+            background: rgba(0,0,0,0.08) !important;
+            border-color: #999 !important;
+            color: #333 !important;
+        }
+
         .label-nobg::before {
             display: none;
         }
@@ -542,16 +548,20 @@
 
         function createLabel(restaurantName, tableNumber, baseUrl, colorTheme) {
             const isAdmin = tableNumber === 0;
-            const isNoBg = colorTheme === 'none' && !isAdmin;
+            const isNoBg = colorTheme === 'none';
             const colors = colorThemes[colorTheme];
             const gradient = colors ? `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)` : null;
 
             // 라벨 요소 생성
             const label = document.createElement('div');
-            label.className = isAdmin ? 'label admin-label' : (isNoBg ? 'label label-nobg' : 'label');
+            label.className = isAdmin
+                ? (isNoBg ? 'label admin-label label-nobg' : 'label admin-label')
+                : (isNoBg ? 'label label-nobg' : 'label');
+
             if (isNoBg) {
                 label.style.background = 'white';
                 label.style.color = '#333';
+                label.style.border = '2px dashed #ccc';
             } else if (!isAdmin && gradient) {
                 label.style.background = gradient;
             }
