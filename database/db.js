@@ -55,14 +55,15 @@ async function initializeDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         `);
 
-        // Migration: add payment columns to existing orders table (idempotent)
-        const paymentColumns = [
+        // Migration: add columns to existing orders table (idempotent)
+        const orderColumns = [
             { name: 'payment_status', def: "ENUM('pending','paid','failed','refunded') DEFAULT 'paid'" },
             { name: 'payment_method', def: 'VARCHAR(50) NULL' },
             { name: 'payment_key',    def: 'VARCHAR(200) NULL' },
             { name: 'paid_at',        def: 'TIMESTAMP NULL' },
+            { name: 'cleared_at',     def: 'TIMESTAMP NULL' },
         ];
-        for (const col of paymentColumns) {
+        for (const col of orderColumns) {
             try {
                 await connection.query(`ALTER TABLE orders ADD COLUMN ${col.name} ${col.def}`);
                 console.log(`✅ orders.${col.name} column added`);
@@ -72,6 +73,9 @@ async function initializeDatabase() {
         }
         try {
             await connection.query("ALTER TABLE orders ADD INDEX idx_payment_status (payment_status)");
+        } catch (e) { /* exists */ }
+        try {
+            await connection.query("ALTER TABLE orders ADD INDEX idx_cleared_at (cleared_at)");
         } catch (e) { /* exists */ }
 
         // Create order_items table
