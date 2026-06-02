@@ -532,8 +532,10 @@
 
             label.innerHTML = isAdmin ? `
                 <div class="label-content">
-                    <div class="admin-badge">🏪 관리자 전용</div>
-                    <div class="restaurant-name" style="font-size:1em;margin:6px 0">${escapeHtml(restaurantName)}</div>
+                    <div class="header-row">
+                        <div class="restaurant-name">${escapeHtml(restaurantName)}</div>
+                        <div class="table-number-header">관리자용</div>
+                    </div>
                     <div class="subtext">주문 관리 화면</div>
                     <div class="qr-code-wrapper" id="qr-${tableNumber}"></div>
                     <div class="label-description">이 QR코드는 업주용입니다<br>주문 현황을 확인하세요</div>
