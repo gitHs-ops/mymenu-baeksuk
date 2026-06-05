@@ -481,9 +481,7 @@ function payFromHistory(orderId, total) {
 window.payFromHistory = payFromHistory;
 
 async function initSession() {
-    const token = sessionStorage.getItem('sessionToken');
-    const tokenTable = parseInt(sessionStorage.getItem('sessionTable'));
-    if (token && tokenTable === tableNumber) return;
+    // 항상 새 세션 발급 — 테이블 마감 후 재방문 시 구 세션 문제 방지
     try {
         const res = await fetch(`/api/tables/${tableNumber}/session`, { method: 'POST' });
         const data = await res.json();
