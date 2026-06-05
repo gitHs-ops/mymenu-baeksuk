@@ -486,9 +486,11 @@ body {
 }
 
 .order-total {
-    font-size: 1.3em;
+    font-size: 1.1em;
     font-weight: bold;
     color: #667eea;
+    text-align: right;
+    white-space: nowrap;
 }
 
 .order-actions {

@@ -441,10 +441,10 @@ function createOrderCard(order) {
             ${itemsHTML}
         </div>
         <div class="order-footer">
-            <span class="order-total">총 ${formatPrice(order.total)}</span>
             <div class="order-actions">
                 ${actionsHTML}
             </div>
+            <span class="order-total">${formatPrice(order.total)}</span>
         </div>
     `;
 
