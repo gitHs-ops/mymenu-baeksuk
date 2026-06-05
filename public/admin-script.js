@@ -313,7 +313,7 @@ function updateStats() {
     pendingCountEl.textContent = pending;
 }
 
-// Render orders — grouped by table so a session can be cleared in one click
+// Render orders — grouped by table + session (cleared_at)
 function renderOrders() {
     let filteredOrders = orders;
 
@@ -328,35 +328,43 @@ function renderOrders() {
 
     ordersListEl.innerHTML = '';
 
+    // 테이블 + cleared_at 으로 세션 그룹핑
     const groups = new Map();
     filteredOrders.forEach(o => {
-        if (!groups.has(o.table_number)) groups.set(o.table_number, []);
-        groups.get(o.table_number).push(o);
+        const sessionKey = `${o.table_number}__${o.cleared_at || 'active'}`;
+        if (!groups.has(sessionKey)) groups.set(sessionKey, { tableNumber: o.table_number, clearedAt: o.cleared_at, orders: [] });
+        groups.get(sessionKey).orders.push(o);
     });
 
-    // Sort tables by most recent activity desc
-    const sortedTables = [...groups.entries()].sort((a, b) => {
-        const aLatest = Math.max(...a[1].map(o => new Date(o.created_at).getTime()));
-        const bLatest = Math.max(...b[1].map(o => new Date(o.created_at).getTime()));
+    // 정렬: 현재 세션(active) 우선, 이후 최근 주문 시간 desc
+    const sorted = [...groups.values()].sort((a, b) => {
+        if (!a.clearedAt && b.clearedAt) return -1;
+        if (a.clearedAt && !b.clearedAt) return 1;
+        const aLatest = Math.max(...a.orders.map(o => new Date(o.created_at).getTime()));
+        const bLatest = Math.max(...b.orders.map(o => new Date(o.created_at).getTime()));
         return bLatest - aLatest;
     });
 
-    sortedTables.forEach(([tableNumber, tableOrders]) => {
-        // Sort each table's orders by time desc
+    sorted.forEach(({ tableNumber, clearedAt, orders: tableOrders }) => {
         tableOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         const group = document.createElement('div');
-        group.className = 'table-group';
+        group.className = 'table-group' + (clearedAt ? ' session-closed' : '');
 
         const tableTotal = tableOrders.reduce((sum, o) => sum + parseFloat(o.total), 0);
         const hasCompleted = tableOrders.some(o => o.status === 'completed' && !o.cleared_at);
         const allTerminal = tableOrders.every(o => o.status === 'completed' || o.status === 'cancelled');
+
+        const sessionLabel = clearedAt
+            ? `<span class="session-closed-badge">마감 ${new Date(clearedAt).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' })}</span>`
+            : '';
 
         const header = document.createElement('div');
         header.className = 'table-group-header';
         header.innerHTML = `
             <div class="table-group-title">
                 <span class="table-group-num">테이블 ${tableNumber}</span>
+                ${sessionLabel}
                 <span class="table-group-count">${tableOrders.length}건</span>
                 <span class="table-group-total">${formatPrice(tableTotal)}</span>
             </div>

@@ -557,6 +557,21 @@ body {
     background: linear-gradient(90deg, #14532d, #166534);
 }
 
+.session-closed .table-group-header {
+    background: linear-gradient(90deg, #4b3f3f, #6b4f4f);
+    opacity: 0.85;
+}
+
+.session-closed-badge {
+    font-size: 0.72em;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
 .table-group-title {
     display: flex;
     align-items: center;
