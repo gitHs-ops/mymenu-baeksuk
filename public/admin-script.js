@@ -375,7 +375,7 @@ function renderOrders() {
         group.appendChild(header);
 
         tableOrders.forEach(order => {
-            group.appendChild(createOrderCard(order));
+            group.appendChild(createOrderCard(order, tableOrders.length));
         });
 
         // 주문 2건 이상일 때만 카드 하단에 총 금액 표시
@@ -393,7 +393,7 @@ function renderOrders() {
 }
 
 // Create order card
-function createOrderCard(order) {
+function createOrderCard(order, sessionOrderCount = 1) {
     const card = document.createElement('div');
     card.className = `order-card ${order.status}`;
 
@@ -448,7 +448,7 @@ function createOrderCard(order) {
             ${itemsHTML}
         </div>
         <div class="order-footer">
-            <span class="order-total">소계 ${formatPrice(order.total)}</span>
+            <span class="order-total">${sessionOrderCount === 1 ? '합계' : '소계'} ${formatPrice(order.total)}</span>
             <div class="order-actions">
                 ${actionsHTML}
             </div>

@@ -491,6 +491,7 @@ body {
     color: #667eea;
     text-align: right;
     white-space: nowrap;
+    width: 100%;
 }
 
 .order-actions {
