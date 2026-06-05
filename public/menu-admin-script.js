@@ -63,16 +63,20 @@ function renderMenuList() {
             row.className = `menu-row${item.is_available ? '' : ' row-unavailable'}`;
             row.dataset.id = item.id;
             row.innerHTML = `
-                <span class="menu-row-name">${item.name}</span>
-                <span class="menu-row-price">${Math.round(Number(item.price)).toLocaleString('ko-KR')}원</span>
-                <div class="menu-row-actions">
-                    <label class="availability-toggle" title="${item.is_available ? '판매중' : '판매중지'}">
-                        <input type="checkbox" ${item.is_available ? 'checked' : ''}
-                            onchange="toggleAvailability(${item.id}, this.checked)">
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <button class="btn-row-edit" onclick="openEdit(${item.id})"><i data-lucide="edit-3"></i></button>
-                    <button class="btn-row-delete" onclick="handleDelete(${item.id})"><i data-lucide="trash-2"></i></button>
+                <div class="menu-row-line1">
+                    <span class="menu-row-name">${item.name}</span>
+                </div>
+                <div class="menu-row-line2">
+                    <span class="menu-row-price">${Math.round(Number(item.price)).toLocaleString('ko-KR')}원</span>
+                    <div class="menu-row-actions">
+                        <label class="availability-toggle" title="${item.is_available ? '판매중' : '판매중지'}">
+                            <input type="checkbox" ${item.is_available ? 'checked' : ''}
+                                onchange="toggleAvailability(${item.id}, this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <button class="btn-row-edit" onclick="openEdit(${item.id})"><i data-lucide="edit-3"></i></button>
+                        <button class="btn-row-delete" onclick="handleDelete(${item.id})"><i data-lucide="trash-2"></i></button>
+                    </div>
                 </div>
             `;
             group.appendChild(row);
