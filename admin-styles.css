@@ -82,6 +82,11 @@ body {
     font-family: inherit;
 }
 
+#dateFilter::-webkit-clear-button,
+#dateFilter::-webkit-inner-spin-button {
+    display: none;
+}
+
 .date-nav-btn {
     background: #ffffff;
     border: 1px solid #e2e8f0;
