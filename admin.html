@@ -15,7 +15,10 @@
                 <h1>🏪 주문 관리 시스템</h1>
                 <div class="date-picker-bar">
                     <button class="date-nav-btn" id="prevDay"><i data-lucide="chevron-left"></i></button>
-                    <input type="date" id="dateFilter" />
+                    <div class="date-input-wrapper">
+                        <label for="dateFilter"><i data-lucide="calendar" class="date-cal-icon"></i></label>
+                        <input type="date" id="dateFilter" />
+                    </div>
                     <button class="date-nav-btn" id="nextDay"><i data-lucide="chevron-right"></i></button>
                     <button class="date-today-btn" id="todayBtn">오늘</button>
                 </div>
