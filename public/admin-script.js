@@ -366,7 +366,6 @@ function renderOrders() {
                 <span class="table-group-num">테이블 ${tableNumber}</span>
                 ${sessionLabel}
                 <span class="table-group-count">${tableOrders.length}건</span>
-                <span class="table-group-total">${formatPrice(tableTotal)}</span>
             </div>
             <div class="table-group-actions">
                 ${hasCompleted ? `<button class="action-btn btn-clear" onclick="clearTable(${tableNumber})"><i data-lucide="receipt"></i> 테이블 마감</button>` : ''}
@@ -378,6 +377,14 @@ function renderOrders() {
         tableOrders.forEach(order => {
             group.appendChild(createOrderCard(order));
         });
+
+        // 주문 2건 이상일 때만 카드 하단에 총 금액 표시
+        if (tableOrders.length > 1) {
+            const totalFooter = document.createElement('div');
+            totalFooter.className = 'table-group-total-footer';
+            totalFooter.innerHTML = `<span class="group-total-label">합계</span><span class="group-total-amount">${formatPrice(tableTotal)}</span>`;
+            group.appendChild(totalFooter);
+        }
 
         ordersListEl.appendChild(group);
     });
@@ -444,7 +451,7 @@ function createOrderCard(order) {
             <div class="order-actions">
                 ${actionsHTML}
             </div>
-            <span class="order-total">${formatPrice(order.total)}</span>
+            <span class="order-total">소계 ${formatPrice(order.total)}</span>
         </div>
     `;
 

@@ -564,6 +564,27 @@ body {
     opacity: 0.85;
 }
 
+.table-group-total-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f1f5f9;
+    border-top: 2px solid #e2e8f0;
+    font-weight: 700;
+}
+
+.group-total-label {
+    font-size: 0.95em;
+    color: #555;
+}
+
+.group-total-amount {
+    font-size: 1.2em;
+    color: #667eea;
+    font-weight: 800;
+}
+
 .session-closed-badge {
     font-size: 0.72em;
     background: rgba(255,255,255,0.2);
