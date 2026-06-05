@@ -702,21 +702,13 @@ async function deleteOrderItem(orderId, itemIndex, itemName) {
         }
         
         order.items.splice(itemIndex, 1);
-        
+
         if (order.items.length === 0) {
             await apiClient.deleteOrder(orderId);
             alert('모든 메뉴가 취소되어 주문이 삭제되었습니다.');
         } else {
             const newTotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            await apiClient.deleteOrder(orderId);
-            const updatedOrder = {
-                id: orderId,
-                tableNumber: order.table_number,
-                items: order.items,
-                total: newTotal,
-                timestamp: order.created_at
-            };
-            await apiClient.createOrder(updatedOrder);
+            await apiClient.updateOrderItems(orderId, order.items, newTotal);
             alert('메뉴가 취소되었습니다.');
         }
         openHistory();
