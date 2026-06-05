@@ -97,15 +97,16 @@ body {
     font-family: inherit;
     width: 110px;
     outline: none;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 #dateFilter::-webkit-clear-button,
-#dateFilter::-webkit-inner-spin-button {
-    display: none;
-}
-
+#dateFilter::-webkit-inner-spin-button,
 #dateFilter::-webkit-calendar-picker-indicator {
-    display: none;
+    display: none !important;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .date-nav-btn {
