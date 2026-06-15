@@ -122,6 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
     }
+
+    // Wake Lock — 화면 꺼짐 방지
+    acquireWakeLock();
 });
 
 // Handle WebSocket messages
@@ -233,8 +236,32 @@ function updateClock() {
     currentTimeEl.textContent = timeString;
 }
 
-// Play notification sound
+// ── Wake Lock ──────────────────────────────────────────────
+let wakeLock = null;
+async function acquireWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        document.getElementById('wakeLockIndicator').style.display = 'block';
+        wakeLock.addEventListener('release', () => {
+            wakeLock = null;
+            document.getElementById('wakeLockIndicator').style.display = 'none';
+        });
+    } catch (e) {
+        // 권한 거부 or 미지원 — 조용히 무시
+    }
+}
+// 탭이 다시 활성화되면 wake lock 재획득
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !wakeLock) acquireWakeLock();
+});
+
+// Play notification sound + vibration
 function playNotificationSound() {
+    // 진동: 200ms 진동 → 100ms 멈춤 → 200ms 진동 → 100ms → 300ms
+    if ('vibrate' in navigator) {
+        navigator.vibrate([200, 100, 200, 100, 300]);
+    }
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         // 3-chime: 낮→중→높 순서로 차임벨 효과
