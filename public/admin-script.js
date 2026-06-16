@@ -249,36 +249,29 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && !wakeLock) acquireWakeLock();
 });
 
-// ── Audio Context (singleton) — 모바일은 사용자 터치 후 resume 필요
-let _audioCtx = null;
-function getAudioCtx() {
-    try {
-        if (!_audioCtx || _audioCtx.state === 'closed') {
-            _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (_audioCtx.state === 'suspended') _audioCtx.resume();
-        return _audioCtx;
-    } catch (e) {
-        return null;
-    }
-}
-// 첫 터치/클릭 시 AudioContext 해제 (iOS 포함 모바일 필수)
+// ── Audio unlock — 첫 터치/클릭 시 AudioContext 정책 해제 (iOS 필수)
+let _audioUnlocked = false;
 ['click', 'touchstart'].forEach(evt => {
-    document.addEventListener(evt, () => {
-        if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
-        else if (!_audioCtx) getAudioCtx();
+    document.addEventListener(evt, async () => {
+        if (_audioUnlocked) return;
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            await ctx.resume();
+            await ctx.close();
+            _audioUnlocked = true;
+        } catch (e) {}
     });
 });
 
 // Play notification sound + vibration
-function playNotificationSound() {
+async function playNotificationSound() {
     // 진동: 200ms → 100ms → 200ms → 100ms → 300ms
     if ('vibrate' in navigator) {
         navigator.vibrate([200, 100, 200, 100, 300]);
     }
     try {
-        const ctx = getAudioCtx();
-        if (!ctx) return;
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') await ctx.resume();
         // 3-chime: 낮→중→높
         [
             { freq: 600, start: 0.0 },
@@ -298,6 +291,8 @@ function playNotificationSound() {
             osc.start(t);
             osc.stop(t + 0.4);
         });
+        // 재생 완료 후 context 닫기
+        setTimeout(() => ctx.close(), 1500);
     } catch (error) {
         console.error('Error playing sound:', error);
     }
