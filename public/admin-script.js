@@ -25,6 +25,8 @@ const soundToggle = document.getElementById('soundToggle');
 // staffCall 관련 요소는 DOMContentLoaded 안에서 참조
 let staffCallViewActive = false;
 let staffCallToggleBtn, pendingToggleBtn, ordersSectionEl, statsDashboardEl, orderStatsEl;
+const newOrderQueue = [];  // 동시 다발 주문 팝업 대기열
+const staffCallQueue = []; // 동시 다발 호출 팝업 대기열
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -34,16 +36,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('startWorkOverlay').style.display = 'none';
     });
 
-    // 새 주문 알림 팝업 확인 버튼
+    // 새 주문 알림 팝업 확인 버튼 — 현재 주문 제거 후 다음 대기 주문 표시
     document.getElementById('newOrderPopupConfirm').addEventListener('click', () => {
-        document.getElementById('newOrderPopup').style.display = 'none';
+        newOrderQueue.shift();
         loadOrders();
+        showNextNewOrderPopup();
     });
 
-    // 직원 호출 알림 팝업 확인 버튼
+    // 직원 호출 알림 팝업 확인 버튼 — 현재 호출 제거 후 다음 대기 호출 표시
     document.getElementById('staffCallPopupConfirm').addEventListener('click', () => {
-        document.getElementById('staffCallPopup').style.display = 'none';
+        staffCallQueue.shift();
         loadStaffCalls();
+        showNextStaffCallPopup();
     });
 
     // 직원 호출 관련 DOM 요소 할당
@@ -153,40 +157,25 @@ function handleWebSocketMessage(data) {
         case 'new_order': {
             if (soundEnabled) playNotificationSound();
             const _tableNum = data.order.table_number || data.order.tableNumber;
-            // 토스트 대신 확인 팝업 표시 → 확인 클릭 시 loadOrders()
-            const popup = document.getElementById('newOrderPopup');
-            const _items = data.order.items || [];
-            const _itemsHTML = _items.map(it =>
-                `<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:#ddd;font-size:0.95rem;">
-                    <span>${it.name} <span style="color:#a78bfa;">×${it.quantity}</span></span>
-                    <span style="color:#bbb;white-space:nowrap;">${formatPrice(it.price * it.quantity)}</span>
-                </div>`
-            ).join('');
-            const _payMethod = data.order.payment_method
-                ? `<div style="margin-top:8px;color:#888;font-size:0.85rem;">결제수단: ${data.order.payment_method}</div>`
-                : '';
-            const _orderTime = new Date(data.order.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('newOrderPopupMsg').innerHTML = `
-                <div style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;">테이블 ${_tableNum} · ${_orderTime}</div>
-                <div style="text-align:left;margin:12px 0;border-top:1px solid #3a3a4e;border-bottom:1px solid #3a3a4e;padding:8px 0;">
-                    ${_itemsHTML || '<div style="color:#999;">메뉴 정보 없음</div>'}
-                </div>
-                <div style="display:flex;justify-content:space-between;font-weight:800;color:#fff;font-size:1.05rem;">
-                    <span>합계</span><span>${formatPrice(data.order.total)}</span>
-                </div>
-                ${_payMethod}`;
-            popup.style.display = 'flex';
+            // 1) 메시징(토스트) — 팝업 상태와 무관하게 항상 누적 표시
+            showNotification(`🔔 새 주문! 테이블 ${_tableNum}`);
+            // 2) 팝업 대기열에 추가 → 팝업 미표시 상태면 즉시 표시
+            newOrderQueue.push(data.order);
+            if (document.getElementById('newOrderPopup').style.display !== 'flex') {
+                showNextNewOrderPopup();
+            }
             break;
         }
 
         case 'staff_call': {
             if (soundEnabled) playNotificationSound();
-            // 토스트 대신 확인 팝업 표시 → 확인 클릭 시 호출 목록 갱신
-            const _callTime = new Date(data.call.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('staffCallPopupMsg').innerHTML = `
-                <div style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;">테이블 ${data.call.table_number} · ${_callTime}</div>
-                <div style="margin-top:12px;color:#f0a868;font-size:1.1rem;font-weight:700;">${data.call.message}</div>`;
-            document.getElementById('staffCallPopup').style.display = 'flex';
+            // 1) 메시징(토스트) — 팝업 상태와 무관하게 항상 누적 표시
+            showNotification(`🛎️ 호출! 테이블 ${data.call.table_number}: ${data.call.message}`);
+            // 2) 팝업 대기열에 추가 → 팝업 미표시 상태면 즉시 표시
+            staffCallQueue.push(data.call);
+            if (document.getElementById('staffCallPopup').style.display !== 'flex') {
+                showNextStaffCallPopup();
+            }
             break;
         }
 
@@ -237,6 +226,53 @@ function handleWebSocketMessage(data) {
             showNotification(`🧾 테이블 ${data.tableNumber} 마감 (${data.clearedCount}건)`);
             break;
     }
+}
+
+// 새 주문 팝업 — 대기열 맨 앞 주문 표시 (없으면 닫기)
+function showNextNewOrderPopup() {
+    const popup = document.getElementById('newOrderPopup');
+    const order = newOrderQueue[0];
+    if (!order) { popup.style.display = 'none'; return; }
+    const tableNum = order.table_number || order.tableNumber;
+    const items = order.items || [];
+    const itemsHTML = items.map(it =>
+        `<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:#ddd;font-size:0.95rem;">
+            <span>${it.name} <span style="color:#a78bfa;">×${it.quantity}</span></span>
+            <span style="color:#bbb;white-space:nowrap;">${formatPrice(it.price * it.quantity)}</span>
+        </div>`
+    ).join('');
+    const payMethod = order.payment_method
+        ? `<div style="margin-top:8px;color:#888;font-size:0.85rem;">결제수단: ${order.payment_method}</div>`
+        : '';
+    const orderTime = new Date(order.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    const waiting = newOrderQueue.length > 1
+        ? `<div style="margin-top:10px;color:#f0a868;font-size:0.85rem;font-weight:700;">외 ${newOrderQueue.length - 1}건 대기 중</div>`
+        : '';
+    document.getElementById('newOrderPopupMsg').innerHTML = `
+        <div style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;">테이블 ${tableNum} · ${orderTime}</div>
+        <div style="text-align:left;margin:12px 0;border-top:1px solid #3a3a4e;border-bottom:1px solid #3a3a4e;padding:8px 0;">
+            ${itemsHTML || '<div style="color:#999;">메뉴 정보 없음</div>'}
+        </div>
+        <div style="display:flex;justify-content:space-between;font-weight:800;color:#fff;font-size:1.05rem;">
+            <span>합계</span><span>${formatPrice(order.total)}</span>
+        </div>
+        ${payMethod}${waiting}`;
+    popup.style.display = 'flex';
+}
+
+// 직원 호출 팝업 — 대기열 맨 앞 호출 표시 (없으면 닫기)
+function showNextStaffCallPopup() {
+    const popup = document.getElementById('staffCallPopup');
+    const call = staffCallQueue[0];
+    if (!call) { popup.style.display = 'none'; return; }
+    const callTime = new Date(call.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    const waiting = staffCallQueue.length > 1
+        ? `<div style="margin-top:10px;color:#a78bfa;font-size:0.85rem;font-weight:700;">외 ${staffCallQueue.length - 1}건 대기 중</div>`
+        : '';
+    document.getElementById('staffCallPopupMsg').innerHTML = `
+        <div style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;">테이블 ${call.table_number} · ${callTime}</div>
+        <div style="margin-top:12px;color:#f0a868;font-size:1.1rem;font-weight:700;">${call.message}</div>${waiting}`;
+    popup.style.display = 'flex';
 }
 
 // Load orders from API
