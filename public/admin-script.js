@@ -369,11 +369,16 @@ async function playNotificationSound() {
 // Show notification (in-page toast + optional browser notification)
 function showNotification(message) {
     showToast(message);
-    if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('주문 알림', {
-            body: message,
-            icon: '🔔'
-        });
+    // 모바일(Android Chrome)에서 new Notification()은 Illegal constructor 예외 발생 → try/catch 필수
+    try {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('주문 알림', {
+                body: message,
+                icon: '🔔'
+            });
+        }
+    } catch (e) {
+        // 모바일 미지원 — 토스트로 충분, 무시
     }
 }
 
