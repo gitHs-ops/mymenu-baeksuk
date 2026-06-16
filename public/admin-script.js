@@ -135,14 +135,7 @@ function handleWebSocketMessage(data) {
         case 'new_order': {
             if (soundEnabled) playNotificationSound();
             showNotification(`새 주문! 테이블 ${data.order.tableNumber || data.order.table_number}`);
-            // 서버 timestamp 파싱 대신 오늘 날짜 직접 비교 (timezone 오류 방지)
-            const _n = new Date();
-            const todayStr = `${_n.getFullYear()}-${String(_n.getMonth()+1).padStart(2,'0')}-${String(_n.getDate()).padStart(2,'0')}`;
-            if (selectedDate === todayStr) {
-                orders.unshift(data.order);
-                updateStats();
-                renderOrders();
-            }
+            loadOrders();
             break;
         }
 
