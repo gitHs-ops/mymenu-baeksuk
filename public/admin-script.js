@@ -249,52 +249,47 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && !wakeLock) acquireWakeLock();
 });
 
-// ── Audio unlock — 첫 터치/클릭 시 AudioContext 정책 해제 (iOS 필수)
-let _audioUnlocked = false;
-['click', 'touchstart'].forEach(evt => {
-    document.addEventListener(evt, async () => {
-        if (_audioUnlocked) return;
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            await ctx.resume();
-            await ctx.close();
-            _audioUnlocked = true;
-        } catch (e) {}
-    });
-});
+// ── Audio — 첫 터치 시 AudioContext 생성 + 차임 버퍼 미리 렌더링
+let _audioCtx = null;
+let _chimeBuffer = null;
+
+function _buildChimeBuffer(ctx) {
+    const sr = ctx.sampleRate;
+    const buf = ctx.createBuffer(1, Math.ceil(1.4 * sr), sr);
+    const d = buf.getChannelData(0);
+    [{ freq: 600, t0: 0.0 }, { freq: 800, t0: 0.45 }, { freq: 1000, t0: 0.9 }]
+        .forEach(({ freq, t0 }) => {
+            const s0 = Math.floor(t0 * sr);
+            for (let i = 0; i < Math.floor(0.4 * sr) && s0 + i < d.length; i++) {
+                const t = i / sr;
+                d[s0 + i] += 0.35 * Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 8);
+            }
+        });
+    return buf;
+}
+
+function _initAudio() {
+    if (_audioCtx) return;
+    try {
+        _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        _chimeBuffer = _buildChimeBuffer(_audioCtx);
+    } catch (e) {}
+}
+// 첫 터치/클릭 시 AudioContext 생성 (모바일 gesture 정책)
+['click', 'touchstart'].forEach(evt => document.addEventListener(evt, _initAudio));
 
 // Play notification sound + vibration
 async function playNotificationSound() {
-    // 진동: 200ms → 100ms → 200ms → 100ms → 300ms
-    if ('vibrate' in navigator) {
-        navigator.vibrate([200, 100, 200, 100, 300]);
-    }
+    if ('vibrate' in navigator) navigator.vibrate([200, 100, 200, 100, 300]);
+    if (!_audioCtx || !_chimeBuffer) return;
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if (ctx.state === 'suspended') await ctx.resume();
-        // 3-chime: 낮→중→높
-        [
-            { freq: 600, start: 0.0 },
-            { freq: 800, start: 0.45 },
-            { freq: 1000, start: 0.9 },
-        ].forEach(({ freq, start }) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            const t = ctx.currentTime + start;
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.4, t + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
-            osc.start(t);
-            osc.stop(t + 0.4);
-        });
-        // 재생 완료 후 context 닫기
-        setTimeout(() => ctx.close(), 1500);
+        if (_audioCtx.state === 'suspended') await _audioCtx.resume();
+        const src = _audioCtx.createBufferSource();
+        src.buffer = _chimeBuffer;
+        src.connect(_audioCtx.destination);
+        src.start(0);
     } catch (error) {
-        console.error('Error playing sound:', error);
+        console.error('Sound error:', error);
     }
 }
 
