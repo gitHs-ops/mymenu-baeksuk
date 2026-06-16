@@ -8,6 +8,26 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+    <!-- 업무개시 팝업 — 터치로 AudioContext 초기화 -->
+    <div id="startWorkOverlay" style="
+        position:fixed;inset:0;z-index:99999;
+        background:rgba(15,15,30,0.92);
+        display:flex;flex-direction:column;
+        align-items:center;justify-content:center;gap:24px;">
+        <div style="font-size:2.2rem;">🏪</div>
+        <div style="color:#fff;font-size:1.3rem;font-weight:700;letter-spacing:0.04em;">주문 관리 시스템</div>
+        <div style="color:#aaa;font-size:0.95rem;">알림음 활성화를 위해 아래 버튼을 눌러주세요</div>
+        <button id="startWorkBtn" style="
+            margin-top:8px;padding:18px 48px;
+            background:linear-gradient(135deg,#667eea,#764ba2);
+            color:#fff;border:none;border-radius:16px;
+            font-size:1.25rem;font-weight:800;
+            cursor:pointer;box-shadow:0 8px 24px rgba(102,126,234,0.5);
+            letter-spacing:0.06em;">
+            ✅ 업무 개시
+        </button>
+    </div>
+
     <div class="admin-container">
         <!-- Header -->
         <header class="admin-header">

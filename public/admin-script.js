@@ -28,6 +28,12 @@ let staffCallToggleBtn, pendingToggleBtn, ordersSectionEl, statsDashboardEl, ord
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+    // 업무개시 팝업 — 클릭으로 AudioContext 초기화
+    document.getElementById('startWorkBtn').addEventListener('click', () => {
+        _initAudio();
+        document.getElementById('startWorkOverlay').style.display = 'none';
+    });
+
     // 직원 호출 관련 DOM 요소 할당
     staffCallToggleBtn = document.getElementById('staffCallToggle');
     pendingToggleBtn = document.getElementById('pendingToggle');
