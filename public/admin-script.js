@@ -256,28 +256,49 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && !wakeLock) acquireWakeLock();
 });
 
+// ── Audio Context (singleton) — 모바일은 사용자 터치 후 resume 필요
+let _audioCtx = null;
+function getAudioCtx() {
+    try {
+        if (!_audioCtx || _audioCtx.state === 'closed') {
+            _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (_audioCtx.state === 'suspended') _audioCtx.resume();
+        return _audioCtx;
+    } catch (e) {
+        return null;
+    }
+}
+// 첫 터치/클릭 시 AudioContext 해제 (iOS 포함 모바일 필수)
+['click', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, () => {
+        if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+        else if (!_audioCtx) getAudioCtx();
+    });
+});
+
 // Play notification sound + vibration
 function playNotificationSound() {
-    // 진동: 200ms 진동 → 100ms 멈춤 → 200ms 진동 → 100ms → 300ms
+    // 진동: 200ms → 100ms → 200ms → 100ms → 300ms
     if ('vibrate' in navigator) {
         navigator.vibrate([200, 100, 200, 100, 300]);
     }
     try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        // 3-chime: 낮→중→높 순서로 차임벨 효과
-        const chimes = [
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        // 3-chime: 낮→중→높
+        [
             { freq: 600, start: 0.0 },
             { freq: 800, start: 0.45 },
             { freq: 1000, start: 0.9 },
-        ];
-        chimes.forEach(({ freq, start }) => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
+        ].forEach(({ freq, start }) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.connect(gain);
-            gain.connect(audioContext.destination);
+            gain.connect(ctx.destination);
             osc.type = 'sine';
             osc.frequency.value = freq;
-            const t = audioContext.currentTime + start;
+            const t = ctx.currentTime + start;
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(0.4, t + 0.05);
             gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
