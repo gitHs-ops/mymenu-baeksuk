@@ -25,6 +25,7 @@ const soundToggle = document.getElementById('soundToggle');
 // staffCall 관련 요소는 DOMContentLoaded 안에서 참조
 let staffCallViewActive = false;
 let staffCallToggleBtn, pendingToggleBtn, ordersSectionEl, statsDashboardEl, orderStatsEl;
+let currentPopupOrderId = null; // 새 주문 팝업이 가리키는 주문 ID
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -34,9 +35,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('startWorkOverlay').style.display = 'none';
     });
 
-    // 새 주문 알림 팝업 확인 버튼
-    document.getElementById('newOrderPopupConfirm').addEventListener('click', () => {
+    // 새 주문 알림 팝업 - 대기: 상태 유지하고 목록 갱신
+    document.getElementById('newOrderPopupWait').addEventListener('click', () => {
         document.getElementById('newOrderPopup').style.display = 'none';
+        loadOrders();
+    });
+
+    // 새 주문 알림 팝업 - 접수: 주문 상태를 조리중으로 변경 후 목록 갱신
+    document.getElementById('newOrderPopupAccept').addEventListener('click', async () => {
+        document.getElementById('newOrderPopup').style.display = 'none';
+        if (currentPopupOrderId) {
+            try {
+                await apiClient.updateOrderStatus(currentPopupOrderId, 'cooking');
+            } catch (e) {
+                console.error('주문 접수 실패', e);
+            }
+        }
         loadOrders();
     });
 
@@ -155,6 +169,7 @@ function handleWebSocketMessage(data) {
             const _tableNum = data.order.table_number || data.order.tableNumber;
             // 토스트 대신 확인 팝업 표시 → 확인 클릭 시 loadOrders()
             const popup = document.getElementById('newOrderPopup');
+            currentPopupOrderId = data.order.id;
             const _items = data.order.items || [];
             const _itemsHTML = _items.map(it =>
                 `<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:#ddd;font-size:0.95rem;">
