@@ -142,14 +142,12 @@ function handleWebSocketMessage(data) {
             if (soundEnabled) playNotificationSound();
             const _tableNum = data.order.table_number || data.order.tableNumber;
             showNotification(`새 주문! 테이블 ${_tableNum}`);
-            // 즉시 UI 반영 (WebSocket 데이터로)
+            // staff_call과 동일 방식: 배열 직접 수정 → 즉시 렌더 (API 재호출 없음)
             if (!orders.find(o => o.id === data.order.id)) {
                 orders.unshift(data.order);
                 updateStats();
                 renderOrders();
             }
-            // 500ms 후 API 재로드 (DB 완전 데이터 보장)
-            setTimeout(loadOrders, 500);
             break;
         }
 
