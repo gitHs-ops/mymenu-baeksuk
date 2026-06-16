@@ -149,7 +149,26 @@ function handleWebSocketMessage(data) {
             const _tableNum = data.order.table_number || data.order.tableNumber;
             // 토스트 대신 확인 팝업 표시 → 확인 클릭 시 loadOrders()
             const popup = document.getElementById('newOrderPopup');
-            document.getElementById('newOrderPopupMsg').textContent = `테이블 ${_tableNum} 주문이 들어왔습니다`;
+            const _items = data.order.items || [];
+            const _itemsHTML = _items.map(it =>
+                `<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:#ddd;font-size:0.95rem;">
+                    <span>${it.name} <span style="color:#a78bfa;">×${it.quantity}</span></span>
+                    <span style="color:#bbb;white-space:nowrap;">${formatPrice(it.price * it.quantity)}</span>
+                </div>`
+            ).join('');
+            const _payMethod = data.order.payment_method
+                ? `<div style="margin-top:8px;color:#888;font-size:0.85rem;">결제수단: ${data.order.payment_method}</div>`
+                : '';
+            const _orderTime = new Date(data.order.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('newOrderPopupMsg').innerHTML = `
+                <div style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;">테이블 ${_tableNum} · ${_orderTime}</div>
+                <div style="text-align:left;margin:12px 0;border-top:1px solid #3a3a4e;border-bottom:1px solid #3a3a4e;padding:8px 0;">
+                    ${_itemsHTML || '<div style="color:#999;">메뉴 정보 없음</div>'}
+                </div>
+                <div style="display:flex;justify-content:space-between;font-weight:800;color:#fff;font-size:1.05rem;">
+                    <span>합계</span><span>${formatPrice(data.order.total)}</span>
+                </div>
+                ${_payMethod}`;
             popup.style.display = 'flex';
             break;
         }
