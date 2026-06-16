@@ -140,8 +140,16 @@ function handleWebSocketMessage(data) {
     switch (data.type) {
         case 'new_order': {
             if (soundEnabled) playNotificationSound();
-            showNotification(`새 주문! 테이블 ${data.order.tableNumber || data.order.table_number}`);
-            loadOrders();
+            const _tableNum = data.order.table_number || data.order.tableNumber;
+            showNotification(`새 주문! 테이블 ${_tableNum}`);
+            // 즉시 UI 반영 (WebSocket 데이터로)
+            if (!orders.find(o => o.id === data.order.id)) {
+                orders.unshift(data.order);
+                updateStats();
+                renderOrders();
+            }
+            // 500ms 후 API 재로드 (DB 완전 데이터 보장)
+            setTimeout(loadOrders, 500);
             break;
         }
 
