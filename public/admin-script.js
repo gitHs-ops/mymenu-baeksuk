@@ -132,19 +132,19 @@ function handleWebSocketMessage(data) {
     console.log('WebSocket message:', data);
 
     switch (data.type) {
-        case 'new_order':
-            // Always notify, but only add to list if it matches the selected date
+        case 'new_order': {
             if (soundEnabled) playNotificationSound();
             showNotification(`새 주문! 테이블 ${data.order.tableNumber || data.order.table_number}`);
-
-            const d = new Date(data.order.created_at);
-            const orderDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            if (orderDate === selectedDate) {
+            // 서버 timestamp 파싱 대신 오늘 날짜 직접 비교 (timezone 오류 방지)
+            const _n = new Date();
+            const todayStr = `${_n.getFullYear()}-${String(_n.getMonth()+1).padStart(2,'0')}-${String(_n.getDate()).padStart(2,'0')}`;
+            if (selectedDate === todayStr) {
                 orders.unshift(data.order);
                 updateStats();
                 renderOrders();
             }
             break;
+        }
 
         case 'staff_call':
             // Add new staff call
