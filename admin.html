@@ -168,6 +168,23 @@
         </div>
     </div>
 
+    <!-- 직원 호출 알림 팝업 -->
+    <div id="staffCallPopup" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
+        <div style="background:#1e1e2e;border-radius:20px;padding:28px 24px;min-width:300px;max-width:380px;max-height:80vh;overflow-y:auto;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.5);">
+            <div style="font-size:2.8rem;margin-bottom:12px;">🛎️</div>
+            <div style="color:#fff;font-size:1.25rem;font-weight:800;margin-bottom:8px;">직원 호출!</div>
+            <div id="staffCallPopupMsg" style="color:#f0a868;font-size:1.05rem;font-weight:600;margin-bottom:24px;"></div>
+            <button id="staffCallPopupConfirm" style="
+                width:100%;padding:14px;
+                background:linear-gradient(135deg,#f0934a,#e0683a);
+                color:#fff;border:none;border-radius:12px;
+                font-size:1.1rem;font-weight:800;cursor:pointer;
+                box-shadow:0 4px 16px rgba(240,147,74,0.4);">
+                ✅ 확인
+            </button>
+        </div>
+    </div>
+
     <script src="/api-client.js?v=20260617"></script>
     <script src="/admin-script.js?v=20260617"></script>
     <script>

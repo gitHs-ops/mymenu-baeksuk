@@ -40,6 +40,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadOrders();
     });
 
+    // 직원 호출 알림 팝업 확인 버튼
+    document.getElementById('staffCallPopupConfirm').addEventListener('click', () => {
+        document.getElementById('staffCallPopup').style.display = 'none';
+        loadStaffCalls();
+    });
+
     // 직원 호출 관련 DOM 요소 할당
     staffCallToggleBtn = document.getElementById('staffCallToggle');
     pendingToggleBtn = document.getElementById('pendingToggle');
@@ -173,19 +179,16 @@ function handleWebSocketMessage(data) {
             break;
         }
 
-        case 'staff_call':
-            // Add new staff call
-            staffCalls.unshift(data.call);
-            renderStaffCalls();
-
-            // Play notification sound
-            if (soundEnabled) {
-                playNotificationSound();
-            }
-
-            // Show notification
-            showNotification(`🔔 테이블 ${data.call.table_number}: ${data.call.message}`);
+        case 'staff_call': {
+            if (soundEnabled) playNotificationSound();
+            // 토스트 대신 확인 팝업 표시 → 확인 클릭 시 호출 목록 갱신
+            const _callTime = new Date(data.call.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('staffCallPopupMsg').innerHTML = `
+                <div style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;">테이블 ${data.call.table_number} · ${_callTime}</div>
+                <div style="margin-top:12px;color:#f0a868;font-size:1.1rem;font-weight:700;">${data.call.message}</div>`;
+            document.getElementById('staffCallPopup').style.display = 'flex';
             break;
+        }
 
         case 'order_status_update':
             // Update order status
