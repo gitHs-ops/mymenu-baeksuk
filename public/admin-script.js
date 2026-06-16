@@ -34,6 +34,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('startWorkOverlay').style.display = 'none';
     });
 
+    // 새 주문 알림 팝업 확인 버튼
+    document.getElementById('newOrderPopupConfirm').addEventListener('click', () => {
+        document.getElementById('newOrderPopup').style.display = 'none';
+        loadOrders();
+    });
+
     // 직원 호출 관련 DOM 요소 할당
     staffCallToggleBtn = document.getElementById('staffCallToggle');
     pendingToggleBtn = document.getElementById('pendingToggle');
@@ -141,13 +147,10 @@ function handleWebSocketMessage(data) {
         case 'new_order': {
             if (soundEnabled) playNotificationSound();
             const _tableNum = data.order.table_number || data.order.tableNumber;
-            showNotification(`새 주문! 테이블 ${_tableNum}`);
-            // staff_call과 동일 방식: 배열 직접 수정 → 즉시 렌더 (API 재호출 없음)
-            if (!orders.find(o => o.id === data.order.id)) {
-                orders.unshift(data.order);
-                updateStats();
-                renderOrders();
-            }
+            // 토스트 대신 확인 팝업 표시 → 확인 클릭 시 loadOrders()
+            const popup = document.getElementById('newOrderPopup');
+            document.getElementById('newOrderPopupMsg').textContent = `테이블 ${_tableNum} 주문이 들어왔습니다`;
+            popup.style.display = 'flex';
             break;
         }
 

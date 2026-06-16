@@ -151,8 +151,25 @@
         <div id="wakeLockIndicator" style="display:none;position:fixed;bottom:16px;left:16px;background:rgba(0,0,0,0.55);color:#fff;font-size:12px;padding:4px 10px;border-radius:20px;z-index:9999;">☀️ 화면 켜짐 유지</div>
     </div>
 
-    <script src="/api-client.js?v=20260616"></script>
-    <script src="/admin-script.js?v=20260616"></script>
+    <!-- 새 주문 알림 팝업 -->
+    <div id="newOrderPopup" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
+        <div style="background:#1e1e2e;border-radius:20px;padding:32px 28px;min-width:280px;max-width:340px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.5);">
+            <div style="font-size:2.8rem;margin-bottom:12px;">🔔</div>
+            <div style="color:#fff;font-size:1.25rem;font-weight:800;margin-bottom:8px;">새 주문!</div>
+            <div id="newOrderPopupMsg" style="color:#a78bfa;font-size:1.05rem;font-weight:600;margin-bottom:24px;"></div>
+            <button id="newOrderPopupConfirm" style="
+                width:100%;padding:14px;
+                background:linear-gradient(135deg,#667eea,#764ba2);
+                color:#fff;border:none;border-radius:12px;
+                font-size:1.1rem;font-weight:800;cursor:pointer;
+                box-shadow:0 4px 16px rgba(102,126,234,0.4);">
+                ✅ 확인
+            </button>
+        </div>
+    </div>
+
+    <script src="/api-client.js?v=20260617"></script>
+    <script src="/admin-script.js?v=20260617"></script>
     <script>
         lucide.createIcons();
     </script>
