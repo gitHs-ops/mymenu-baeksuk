@@ -59,7 +59,13 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public', {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
 
 // Serve static files
 app.use(express.static('.', {
@@ -72,6 +78,10 @@ app.use(express.static('.', {
         } else if (path.endsWith('.js')) {
             res.setHeader('Content-Type', 'application/javascript');
         }
+        // 캐시 무효화 — 항상 최신 파일 제공
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
     }
 }));
 
@@ -1101,6 +1111,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/admin', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(__dirname + '/admin.html');
 });
 
