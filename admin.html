@@ -157,23 +157,14 @@
             <div style="font-size:2.8rem;margin-bottom:12px;">🔔</div>
             <div style="color:#fff;font-size:1.25rem;font-weight:800;margin-bottom:8px;">새 주문!</div>
             <div id="newOrderPopupMsg" style="color:#a78bfa;font-size:1.05rem;font-weight:600;margin-bottom:24px;"></div>
-            <div style="display:flex;gap:10px;">
-                <button id="newOrderPopupWait" style="
-                    flex:1;padding:14px;
-                    background:#3a3a4e;
-                    color:#fff;border:none;border-radius:12px;
-                    font-size:1.1rem;font-weight:800;cursor:pointer;">
-                    ⏳ 대기
-                </button>
-                <button id="newOrderPopupAccept" style="
-                    flex:1;padding:14px;
-                    background:linear-gradient(135deg,#667eea,#764ba2);
-                    color:#fff;border:none;border-radius:12px;
-                    font-size:1.1rem;font-weight:800;cursor:pointer;
-                    box-shadow:0 4px 16px rgba(102,126,234,0.4);">
-                    ✅ 접수
-                </button>
-            </div>
+            <button id="newOrderPopupConfirm" style="
+                width:100%;padding:14px;
+                background:linear-gradient(135deg,#667eea,#764ba2);
+                color:#fff;border:none;border-radius:12px;
+                font-size:1.1rem;font-weight:800;cursor:pointer;
+                box-shadow:0 4px 16px rgba(102,126,234,0.4);">
+                ✅ 확인
+            </button>
         </div>
     </div>
 
@@ -194,8 +185,8 @@
         </div>
     </div>
 
-    <script src="/api-client.js?v=20260618"></script>
-    <script src="/admin-script.js?v=20260618"></script>
+    <script src="/api-client.js?v=20260617"></script>
+    <script src="/admin-script.js?v=20260617"></script>
     <script>
         lucide.createIcons();
     </script>
